@@ -4,33 +4,32 @@
 #ifndef AVLTREE_H_
 #define AVLTREE_H_
 
+template <class dataType>
 class AVLTree
 {
 private:
-    AVLNode *root;
-    AVLNode *initNewNode(int key, int data);
-    void rollLeft(AVLNode *node);
-    void rollRight(AVLNode *node);
-    bool rollNode(AVLNode *node);
-    void destroy(AVLNode *node);
-    void insertLeftNaive(AVLNode *target, int key, int data);
-    void insertRightNaive(AVLNode *target, int key, int data);
-    bool removeLeaf(AVLNode *target);
-    bool removeSingleChild(AVLNode *target);
-    void updateNodeParameters(AVLNode *target);
-    void printInOrderAux(AVLNode *node);
-    bool isLeaf(AVLNode *node);
-    void swapTwoNodes(AVLNode *v1, AVLNode *v2);
-    AVLNode *findNextNode(AVLNode *node);
+    AVLNode<dataType> *root;
+    AVLNode<dataType> *initNewNode(int key, dataType data);
+    void rollLeft(AVLNode<dataType> *node);
+    void rollRight(AVLNode<dataType> *node);
+    bool rollNode(AVLNode<dataType> *node);
+    void destroy(AVLNode<dataType> *node);
+    void insertLeftNaive(AVLNode<dataType> *target, int key, dataType data);
+    void insertRightNaive(AVLNode<dataType> *target, int key, dataType data);
+    bool removeLeaf(AVLNode<dataType> *target);
+    bool removeSingleChild(AVLNode<dataType> *target);
+    void updateNodeParameters(AVLNode<dataType> *target);
+    void printInOrderAux(AVLNode<dataType> *node);
+    void swapTwoNodes(AVLNode<dataType> *v1, AVLNode<dataType> *v2);
+    AVLNode<dataType> *findNextNode(AVLNode<dataType> *node);
 
 public:
     AVLTree();
     ~AVLTree();
-    AVLNode *search(int key);
-    bool insert(int key, int data);
+    AVLNode<dataType> *search(int key);
+    bool insert(int key, dataType data);
     bool remove(int key);
     void printInOrder();
-    AVLNode *getRoot();
 };
 
 #endif

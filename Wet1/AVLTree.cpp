@@ -1,18 +1,21 @@
 #include "AVLTree.h"
 using namespace std;
 
-AVLTree::AVLTree()
+template <class dataType>
+AVLTree<dataType>::AVLTree()
 {
     root = nullptr;
 }
 
-AVLTree::~AVLTree()
+template <class dataType>
+AVLTree<dataType>::~AVLTree()
 {
     if (root != nullptr)
         destroy(root);
 }
 
-void AVLTree::destroy(AVLNode *node)
+template <class dataType>
+void AVLTree<dataType>::destroy(AVLNode<dataType> *node)
 {
     if (node != nullptr)
     {
@@ -22,14 +25,15 @@ void AVLTree::destroy(AVLNode *node)
     }
 }
 
-AVLNode *AVLTree::search(int key)
+template <class dataType>
+AVLNode<dataType> *AVLTree<dataType>::search(int key)
 {
     // Check if the tree is empty
     if (root == nullptr)
         return nullptr;
 
-    AVLNode *temp = root;
-    AVLNode *parent;
+    AVLNode<dataType> *temp = root;
+    AVLNode<dataType> *parent;
     while (temp != nullptr)
     {
         parent = temp;
@@ -51,14 +55,15 @@ AVLNode *AVLTree::search(int key)
     return parent;
 }
 
-bool AVLTree::insert(int key, int data)
+template <class dataType>
+bool AVLTree<dataType>::insert(int key, dataType data)
 {
     if (root == nullptr)
     {
         root = initNewNode(key, data);
         return true;
     }
-    AVLNode *target = search(key);
+    AVLNode<dataType> *target = search(key);
 
     // Check if the key already exists in the tree
     if (key == target->key)
@@ -77,7 +82,6 @@ bool AVLTree::insert(int key, int data)
     }
 
     updateNodeParameters(target);
-
     // Traverse upwards and update parameters until you need to roll
     while (target != nullptr && target->balanceFactor != 2 && target->balanceFactor != -2)
     {
@@ -93,10 +97,11 @@ bool AVLTree::insert(int key, int data)
     return true;
 }
 
-bool AVLTree::remove(int key)
+template <class dataType>
+bool AVLTree<dataType>::remove(int key)
 {
 
-    AVLNode *toBeRemoved = search(key);
+    AVLNode<dataType> *toBeRemoved = search(key);
     if (toBeRemoved == nullptr)
         return false;
     else if (toBeRemoved->key != key)
@@ -107,13 +112,13 @@ bool AVLTree::remove(int key)
     // toBeRemoved has 2 children
     if (toBeRemoved->heightLeft >= 0 && toBeRemoved->heightRight >= 0)
     {
-        AVLNode *nextNode = findNextNode(toBeRemoved);
+        AVLNode<dataType> *nextNode = findNextNode(toBeRemoved);
         swapTwoNodes(toBeRemoved, nextNode);
 
         toBeRemoved = nextNode;
     }
 
-    AVLNode *parent = toBeRemoved->parentNode;
+    AVLNode<dataType> *parent = toBeRemoved->parentNode;
     // If toBeRemoved is a leaf
     if (toBeRemoved->height == 0)
     {
@@ -126,6 +131,7 @@ bool AVLTree::remove(int key)
         if (!removeSingleChild(toBeRemoved))
             return false;
     }
+    updateNodeParameters(parent);
     while (parent != nullptr)
     {
         if (parent->balanceFactor == 2 || parent->balanceFactor == -2)
@@ -134,13 +140,15 @@ bool AVLTree::remove(int key)
                 return false;
         }
         parent = parent->parentNode;
+        updateNodeParameters(parent);
     }
     return true;
 }
 
-bool AVLTree::removeLeaf(AVLNode *target)
+template <class dataType>
+bool AVLTree<dataType>::removeLeaf(AVLNode<dataType> *target)
 {
-    AVLNode *parent = target->parentNode;
+    AVLNode<dataType> *parent = target->parentNode;
     // target is also the root
     if (parent == nullptr)
     {
@@ -171,12 +179,15 @@ bool AVLTree::removeLeaf(AVLNode *target)
     return true;
 }
 
-bool AVLTree::removeSingleChild(AVLNode *target)
+template <class dataType>
+bool AVLTree<dataType>::removeSingleChild(AVLNode<dataType> *target)
 {
-    AVLNode *parent = target->parentNode;
+    AVLNode<dataType> *parent = target->parentNode;
+
+    // target has a single child on the right
     if (target->heightLeft == -1 && target->heightRight >= 0)
     {
-        // toBeRemoved is also the root
+        // target is also the root
         if (parent == nullptr)
         {
             root = target->rightNode;
@@ -186,6 +197,8 @@ bool AVLTree::removeSingleChild(AVLNode *target)
         }
         else
         {
+            target->rightNode->isLeftChild = target->isLeftChild;
+            target->rightNode->isRightChild = target->isRightChild;
             if (target->isLeftChild)
             {
                 parent->leftNode = target->rightNode;
@@ -210,10 +223,10 @@ bool AVLTree::removeSingleChild(AVLNode *target)
         }
     }
 
-    // toBeRemoved has a single child on the left
+    // target has a single child on the left
     else if (target->heightLeft >= 0 && target->heightRight == -1)
     {
-        // toBeRemoved is also the root
+        // target is also the root
         if (parent == nullptr)
         {
             root = target->leftNode;
@@ -223,6 +236,8 @@ bool AVLTree::removeSingleChild(AVLNode *target)
         }
         else
         {
+            target->leftNode->isLeftChild = target->isLeftChild;
+            target->leftNode->isRightChild = target->isRightChild;
             if (target->isLeftChild)
             {
                 parent->leftNode = target->leftNode;
@@ -249,7 +264,8 @@ bool AVLTree::removeSingleChild(AVLNode *target)
     return true;
 }
 
-AVLNode *AVLTree::findNextNode(AVLNode *node)
+template <class dataType>
+AVLNode<dataType> *AVLTree<dataType>::findNextNode(AVLNode<dataType> *node)
 {
     node = node->rightNode;
     while (node->leftNode != nullptr)
@@ -259,7 +275,8 @@ AVLNode *AVLTree::findNextNode(AVLNode *node)
     return node;
 }
 
-void AVLTree::swapTwoNodes(AVLNode *v1, AVLNode *v2)
+template <class dataType>
+void AVLTree<dataType>::swapTwoNodes(AVLNode<dataType> *v1, AVLNode<dataType> *v2)
 {
     int key1, key2;
     key1 = v1->key;
@@ -276,23 +293,26 @@ void AVLTree::swapTwoNodes(AVLNode *v1, AVLNode *v2)
     v2->data = data1;
 }
 
-void AVLTree::insertLeftNaive(AVLNode *target, int key, int data)
+template <class dataType>
+void AVLTree<dataType>::insertLeftNaive(AVLNode<dataType> *target, int key, dataType data)
 {
-    AVLNode *newNode = initNewNode(key, data);
+    AVLNode<dataType> *newNode = initNewNode(key, data);
     newNode->isLeftChild = true;
     newNode->parentNode = target;
     target->leftNode = newNode;
 }
 
-void AVLTree::insertRightNaive(AVLNode *target, int key, int data)
+template <class dataType>
+void AVLTree<dataType>::insertRightNaive(AVLNode<dataType> *target, int key, dataType data)
 {
-    AVLNode *newNode = initNewNode(key, data);
+    AVLNode<dataType> *newNode = initNewNode(key, data);
     newNode->isRightChild = true;
     newNode->parentNode = target;
     target->rightNode = newNode;
 }
 
-void AVLTree::updateNodeParameters(AVLNode *target)
+template <class dataType>
+void AVLTree<dataType>::updateNodeParameters(AVLNode<dataType> *target)
 {
     // Check that the target is not empty
     if (target == nullptr)
@@ -329,14 +349,24 @@ void AVLTree::updateNodeParameters(AVLNode *target)
     target->balanceFactor = target->heightLeft - target->heightRight;
 }
 
-void AVLTree::rollRight(AVLNode *node)
+template <class dataType>
+void AVLTree<dataType>::rollRight(AVLNode<dataType> *node)
 {
-    AVLNode *temp = node->leftNode;
-    AVLNode *tempRight = temp->rightNode;
+    AVLNode<dataType> *temp = node->leftNode;
+    AVLNode<dataType> *tempRight = temp->rightNode;
     node->leftNode = tempRight;
-    temp->rightNode = node;
 
-    AVLNode *parent = node->parentNode;
+    updateNodeParameters(node);
+    if (tempRight != nullptr)
+    {
+        tempRight->parentNode = node;
+        tempRight->isLeftChild = true;
+        tempRight->isRightChild = false;
+    }
+    temp->rightNode = node;
+    updateNodeParameters(temp);
+
+    AVLNode<dataType> *parent = node->parentNode;
     // Update nodes parent that his child is now temp and not node
     if (parent != nullptr)
     {
@@ -365,19 +395,26 @@ void AVLTree::rollRight(AVLNode *node)
     node->isRightChild = true;
     node->parentNode = temp;
     temp->parentNode = parent;
-    updateNodeParameters(parent);
-    updateNodeParameters(temp->rightNode);
-    updateNodeParameters(temp);
 }
 
-void AVLTree::rollLeft(AVLNode *node)
+template <class dataType>
+void AVLTree<dataType>::rollLeft(AVLNode<dataType> *node)
 {
-    AVLNode *temp = node->rightNode;
-    AVLNode *tempLeft = temp->leftNode;
+    AVLNode<dataType> *temp = node->rightNode;
+    AVLNode<dataType> *tempLeft = temp->leftNode;
     node->rightNode = tempLeft;
-    temp->leftNode = node;
 
-    AVLNode *parent = node->parentNode;
+    updateNodeParameters(node);
+    if (tempLeft != nullptr)
+    {
+        tempLeft->parentNode = node;
+        tempLeft->isLeftChild = false;
+        tempLeft->isRightChild = true;
+    }
+    temp->leftNode = node;
+    updateNodeParameters(temp);
+
+    AVLNode<dataType> *parent = node->parentNode;
     // Update nodes parent that his child is now temp and not node
     if (parent != nullptr)
     {
@@ -406,14 +443,12 @@ void AVLTree::rollLeft(AVLNode *node)
     node->isRightChild = false;
     node->parentNode = temp;
     temp->parentNode = parent;
-    updateNodeParameters(parent);
-    updateNodeParameters(temp->leftNode);
-    updateNodeParameters(temp);
 }
 
-bool AVLTree::rollNode(AVLNode *node)
+template <class dataType>
+bool AVLTree<dataType>::rollNode(AVLNode<dataType> *node)
 {
-    AVLNode *tempNode;
+    AVLNode<dataType> *tempNode;
     if (node->balanceFactor == 2)
     {
         tempNode = node->leftNode;
@@ -462,9 +497,10 @@ bool AVLTree::rollNode(AVLNode *node)
     return true;
 }
 
-AVLNode *AVLTree::initNewNode(int key, int data)
+template <class dataType>
+AVLNode<dataType> *AVLTree<dataType>::initNewNode(int key, dataType data)
 {
-    AVLNode *node = new AVLNode;
+    AVLNode<dataType> *node = new AVLNode<dataType>;
 
     // Init node data
     node->key = key;
@@ -482,12 +518,14 @@ AVLNode *AVLTree::initNewNode(int key, int data)
     return node;
 }
 
-void AVLTree::printInOrder()
+template <class dataType>
+void AVLTree<dataType>::printInOrder()
 {
     printInOrderAux(root);
 }
 
-void AVLTree::printInOrderAux(AVLNode *node)
+template <class dataType>
+void AVLTree<dataType>::printInOrderAux(AVLNode<dataType> *node)
 {
     if (node == nullptr)
         return;
@@ -497,7 +535,4 @@ void AVLTree::printInOrderAux(AVLNode *node)
     printInOrderAux(node->rightNode);
 }
 
-AVLNode *AVLTree::getRoot()
-{
-    return root;
-}
+template class AVLTree<int>;
