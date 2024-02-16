@@ -27,6 +27,8 @@ public:
     AVLTree();
     ~AVLTree();
     AVLNode<dataType> *search(int key);
+    bool nodeExists(int key);
+    bool isTreeEmpty();
     bool insert(int key, dataType data);
     bool remove(int key);
     void printInOrder();

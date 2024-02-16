@@ -1,4 +1,7 @@
 #include "AVLTree.h"
+#include "Contestant.h"
+#include "Country.h"
+#include "Team.h"
 using namespace std;
 
 template <class dataType>
@@ -53,6 +56,27 @@ AVLNode<dataType> *AVLTree<dataType>::search(int key)
         }
     }
     return parent;
+}
+
+template <class dataType>
+bool AVLTree<dataType>::nodeExists(int key)
+{
+    AVLNode<dataType> *node = search(key);
+    if (node == nullptr)
+        return false;
+
+    else if (key == node->key)
+        return true;
+
+    return false;
+}
+
+template <class dataType>
+bool AVLTree<dataType>::isTreeEmpty()
+{
+    if (root == nullptr)
+        return true;
+    return false;
 }
 
 template <class dataType>
@@ -535,4 +559,6 @@ void AVLTree<dataType>::printInOrderAux(AVLNode<dataType> *node)
     printInOrderAux(node->rightNode);
 }
 
-template class AVLTree<int>;
+template class AVLTree<Country>;
+template class AVLTree<Team>;
+template class AVLTree<Contestant>;

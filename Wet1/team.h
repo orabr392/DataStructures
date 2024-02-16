@@ -1,10 +1,11 @@
 #ifndef TEAM_H_
 #define TEAM_H_
 
-#include "TwoThreeTree.h"
+#include "AVLTree.h"
+#include "Contestant.h"
 #include "wet1util.h"
 
-class team
+class Team
 {
 private:
     int teamId;
@@ -12,17 +13,31 @@ private:
     Sport sport;
     int strength;
     int maxPossibleStrength;
-    TwoThreeTree indices[3];
-    TwoThreeTree strengths[3];
+    AVLTree<Contestant> indices[3];
+    AVLTree<Contestant> strengths[3];
 
 public:
-    team(int teamId, int countryId, Sport sport);
-    ~team() = default;
+    Team(int teamId, int countryId, Sport sport);
+    ~Team() = default;
+    bool isTeamEmpty();
+    int getCountryId();
 };
 
-team::team(int teamId, int countryId, Sport sport) : teamId(teamId), countryId(countryId), sport(sport)
+Team::Team(int teamId, int countryId, Sport sport) : teamId(teamId), countryId(countryId), sport(sport)
 {
     strength = maxPossibleStrength = 0;
+}
+
+bool Team::isTeamEmpty()
+{
+    return (indices[0].isTreeEmpty() &&
+            indices[1].isTreeEmpty() &&
+            indices[2].isTreeEmpty());
+}
+
+int Team::getCountryId()
+{
+    return countryId;
 }
 
 #endif
