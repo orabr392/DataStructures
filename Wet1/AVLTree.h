@@ -4,33 +4,35 @@
 #ifndef AVLTREE_H_
 #define AVLTREE_H_
 
-template <class dataType>
+template <class dataType1, class dataType2>
 class AVLTree
 {
 private:
-    AVLNode<dataType> *root;
-    AVLNode<dataType> *initNewNode(int key, dataType data);
-    void rollLeft(AVLNode<dataType> *node);
-    void rollRight(AVLNode<dataType> *node);
-    bool rollNode(AVLNode<dataType> *node);
-    void destroy(AVLNode<dataType> *node);
-    void insertLeftNaive(AVLNode<dataType> *target, int key, dataType data);
-    void insertRightNaive(AVLNode<dataType> *target, int key, dataType data);
-    bool removeLeaf(AVLNode<dataType> *target);
-    bool removeSingleChild(AVLNode<dataType> *target);
-    void updateNodeParameters(AVLNode<dataType> *target);
-    void printInOrderAux(AVLNode<dataType> *node);
-    void swapTwoNodes(AVLNode<dataType> *v1, AVLNode<dataType> *v2);
-    AVLNode<dataType> *findNextNode(AVLNode<dataType> *node);
+    AVLNode<dataType1, dataType2> *root;
+    AVLNode<dataType1, dataType2> *initNewNode(dataType1 key, dataType2 data);
+    void rollLeft(AVLNode<dataType1, dataType2> *node);
+    void rollRight(AVLNode<dataType1, dataType2> *node);
+    bool rollNode(AVLNode<dataType1, dataType2> *node);
+    void destroy(AVLNode<dataType1, dataType2> *node);
+    void insertLeftNaive(AVLNode<dataType1, dataType2> *target, dataType1 key, dataType2 data);
+    void insertRightNaive(AVLNode<dataType1, dataType2> *target, dataType1 key, dataType2 data);
+    bool removeLeaf(AVLNode<dataType1, dataType2> *target);
+    bool removeSingleChild(AVLNode<dataType1, dataType2> *target);
+    void updateNodeParameters(AVLNode<dataType1, dataType2> *target);
+    void printInOrderAux(AVLNode<dataType1, dataType2> *node);
+    void swapTwoNodes(AVLNode<dataType1, dataType2> *v1, AVLNode<dataType1, dataType2> *v2);
+    AVLNode<dataType1, dataType2> *findNextNode(AVLNode<dataType1, dataType2> *node);
 
 public:
     AVLTree();
     ~AVLTree();
-    AVLNode<dataType> *search(int key);
-    bool nodeExists(int key);
+    AVLNode<dataType1, dataType2> *search(dataType1 key);
+    bool nodeExists(dataType1 key);
     bool isTreeEmpty();
-    bool insert(int key, dataType data);
-    bool remove(int key);
+    bool insert(dataType1 key, dataType2 data);
+    bool remove(dataType1 key);
+    dataType2 getRightMostNode();
+    dataType2 getLeftMostNode();
     void printInOrder();
 };
 

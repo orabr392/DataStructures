@@ -3,7 +3,14 @@
 
 #include "AVLTree.h"
 #include "Contestant.h"
+#include "Country.h"
+#include "TwoKeysInt.h"
 #include "wet1util.h"
+
+#define PARTITIONS 3
+#define IDXRANGE 2
+#define RIGHTMOSTNODE 1
+#define LEFTMOSTNODE 0
 
 class Team
 {
@@ -13,31 +20,30 @@ private:
     Sport sport;
     int strength;
     int maxPossibleStrength;
-    AVLTree<Contestant> indices[3];
-    AVLTree<Contestant> strengths[3];
+    int currentCapacity;
+    Country *country;
+    int capacityInSubTree[PARTITIONS];
+    int indexRanges[PARTITIONS][IDXRANGE];
+    AVLTree<int, Contestant> indicesTrees[PARTITIONS];
+    // AVLTree<TwoKeysInt, Contestant> strengthsTrees[PARTITIONS];
+    void insertIntoPartition(Contestant contestant, int partition);
+    void removeContestantFromPartition(Contestant contestant, int partition);
+    Contestant removeFromPartition(int partition, bool leftMostEnd);
+    void leftShift(int partition);
+    void rightShift(int partition);
+    void updateStrength();
 
 public:
-    Team(int teamId, int countryId, Sport sport);
+    Team();
+    Team(int teamId, int countryId, Sport sport, Country *country);
     ~Team() = default;
     bool isTeamEmpty();
+    Country *getCountry();
+    int getTeamStrength();
     int getCountryId();
+    bool insertContestantToTeam(Contestant contestant);
+    bool removeContestantFromTeam(Contestant contestant);
+    Sport getSport();
 };
-
-Team::Team(int teamId, int countryId, Sport sport) : teamId(teamId), countryId(countryId), sport(sport)
-{
-    strength = maxPossibleStrength = 0;
-}
-
-bool Team::isTeamEmpty()
-{
-    return (indices[0].isTreeEmpty() &&
-            indices[1].isTreeEmpty() &&
-            indices[2].isTreeEmpty());
-}
-
-int Team::getCountryId()
-{
-    return countryId;
-}
 
 #endif

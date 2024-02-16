@@ -24,9 +24,9 @@
 class Olympics
 {
 private:
-	AVLTree<Country> countriesTree;
-	AVLTree<Team> teamsTree;
-	AVLTree<Contestant> contestantsTree;
+	AVLTree<int, Country> countriesTree;
+	AVLTree<int, Team> teamsTree;
+	AVLTree<int, Contestant> contestantsTree;
 
 public:
 	// <DO-NOT-MODIFY> {
