@@ -8,6 +8,7 @@ template <class dataType1, class dataType2>
 AVLTree<dataType1, dataType2>::AVLTree()
 {
     root = nullptr;
+    treeSize = 0;
 }
 
 template <class dataType1, class dataType2>
@@ -85,6 +86,7 @@ bool AVLTree<dataType1, dataType2>::insert(dataType1 key, dataType2 data)
     if (root == nullptr)
     {
         root = initNewNode(key, data);
+        treeSize++;
         return true;
     }
     AVLNode<dataType1, dataType2> *target = search(key);
@@ -118,6 +120,7 @@ bool AVLTree<dataType1, dataType2>::insert(dataType1 key, dataType2 data)
     {
         rollNode(target);
     }
+    treeSize++;
     return true;
 }
 
@@ -166,6 +169,7 @@ bool AVLTree<dataType1, dataType2>::remove(dataType1 key)
         parent = parent->parentNode;
         updateNodeParameters(parent);
     }
+    treeSize--;
     return true;
 }
 

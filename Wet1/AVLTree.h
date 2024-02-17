@@ -9,6 +9,7 @@ class AVLTree
 {
 private:
     AVLNode<dataType1, dataType2> *root;
+    int treeSize;
     AVLNode<dataType1, dataType2> *initNewNode(dataType1 key, dataType2 data);
     void rollLeft(AVLNode<dataType1, dataType2> *node);
     void rollRight(AVLNode<dataType1, dataType2> *node);
