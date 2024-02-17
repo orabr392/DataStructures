@@ -32,6 +32,12 @@ public:
     bool insert(int key, dataType data);
     bool remove(int key);
     void printInOrder();
+    AVLNode<dataType> *getRoot() const {
+        return root;
+    }
+    void setRoot(AVLNode<dataType> *node) {
+        root = node;
+    }
 };
 
 #endif
