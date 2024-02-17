@@ -13,31 +13,24 @@ private:
     Sport sport;
     int strength;
     int maxPossibleStrength;
-    AVLTree<Contestant> indices[3];
-    AVLTree<Contestant> strengths[3];
+    int countContestant;
+    AVLTree<Contestant> indicesTrees[3];
+    AVLTree<Contestant> strengthsTrees[3];
 
 public:
+    Team() = default;
     Team(int teamId, int countryId, Sport sport);
     ~Team() = default;
     bool isTeamEmpty();
     int getCountryId();
+    int getStrength();
+    Sport getSport();
+    int getCountContestant();
+    int getMaxStrength();
+    AVLTree<Contestant> *getIndicesTrees();
+    AVLTree<Contestant> *getStrengthsTrees();
 };
 
-Team::Team(int teamId, int countryId, Sport sport) : teamId(teamId), countryId(countryId), sport(sport)
-{
-    strength = maxPossibleStrength = 0;
-}
 
-bool Team::isTeamEmpty()
-{
-    return (indices[0].isTreeEmpty() &&
-            indices[1].isTreeEmpty() &&
-            indices[2].isTreeEmpty());
-}
-
-int Team::getCountryId()
-{
-    return countryId;
-}
 
 #endif

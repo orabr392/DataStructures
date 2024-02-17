@@ -16,31 +16,23 @@ private:
     int teamsId[TEAMSCAP];
 
 public:
+    Contestant() = default;
     Contestant(int contestantId, int countryId, Sport sport, int strength);
     ~Contestant() = default;
     bool isContestantActive();
     int getCountryId();
+    int getStrength();
+    int getContestantId();
+    //friend std::ostream& operator<<(std::ostream& os, const Contestant& c);
 };
 
-Contestant::Contestant(int contestantId, int countryId, Sport sport, int strength) : contestantId(contestantId), countryId(countryId), sport(sport), strength(strength)
-{
-    teamsCounter = 0;
-    for (int i = 0; i < TEAMSCAP; i++)
-    {
-        teamsId[i] = 0;
-    }
-}
 
-bool Contestant::isContestantActive()
-{
-    if (teamsId[0] || teamsId[1] || teamsId[2])
-        return true;
-    return false;
-}
 
-int Contestant::getCountryId()
-{
-    return countryId;
-}
+//std::ostream &operator<<(std::ostream &os, const Contestant &c) {
+//    os << c.getContestantId();
+//    return os;
+//}
+
+
 
 #endif

@@ -20,6 +20,8 @@
 #include "Country.h"
 #include "Team.h"
 #include "wet1util.h"
+#include <cmath>
+
 
 class Olympics
 {
@@ -29,6 +31,8 @@ private:
 	AVLTree<Contestant> contestantsTree;
 
 public:
+    template <typename T>
+    void getTreeSize(AVLNode<T>* root, int* counter);
 	// <DO-NOT-MODIFY> {
 
 	Olympics();
