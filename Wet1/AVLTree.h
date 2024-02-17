@@ -35,10 +35,11 @@ public:
     dataType2 *getRightMostNode();
     dataType2 *getLeftMostNode();
     void printInOrder();
-    AVLNode<dataType> *getRoot() const {
+    int getTreeSize();
+    AVLNode<dataType1, dataType2> *getRoot() const {
         return root;
     }
-    void setRoot(AVLNode<dataType> *node) {
+    void setRoot(AVLNode<dataType1, dataType2> *node) {
         root = node;
     }
 };

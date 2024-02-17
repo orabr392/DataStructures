@@ -31,8 +31,6 @@ private:
 	AVLTree<int, Contestant> contestantsTree;
 
 public:
-    template <typename T>
-    void getTreeSize(AVLNode<T>* root, int* counter);
 	// <DO-NOT-MODIFY> {
 
 	Olympics();

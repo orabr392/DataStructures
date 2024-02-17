@@ -43,7 +43,10 @@ public:
     bool insertContestantToTeam(Contestant contestant);
     bool removeContestantFromTeam(Contestant contestant);
     Sport getSport();
-
+    AVLTree<int, Contestant> *getIndicesTrees();
+    AVLTree<TwoKeysInt, Contestant> *getStrengthsTrees();
+    int getCurrentCapacity();
+    int getMaxStrength();
     // TEMPORARY FOR TESTING:
 
     void printCurrentContestants();

@@ -160,55 +160,29 @@ StatusType Olympics::update_contestant_strength(int contestantId, int change)
 
 output_t<int> Olympics::get_strength(int contestantId)
 {
-<<<<<<< HEAD
     if(contestantId <= 0)
         return {StatusType::INVALID_INPUT};
     if(!contestantsTree.nodeExists(contestantId))
         return {StatusType::FAILURE};
-	return {contestantsTree.search(contestantId)->data.getStrength()};
-=======
-	if (contestantId <= 0)
-		return output_t<int>(StatusType::INVALID_INPUT);
-	else if (!contestantsTree.nodeExists(contestantId))
-		return output_t<int>(StatusType::FAILURE);
-	else
-	{
-		int strength = contestantsTree.search(contestantId)->data.getContestantStrength();
-		return output_t<int>(strength);
-	}
->>>>>>> 34f4e39f2f88b6de94a18d5b2569fbdbcf17e846
+	return {contestantsTree.search(contestantId)->data.getContestantStrength()};
 }
 
 output_t<int> Olympics::get_medals(int countryId)
 {
-<<<<<<< HEAD
 	if(countryId <= 0)
 		return {StatusType::INVALID_INPUT};
 	if(!countriesTree.nodeExists(countryId))
 		return {StatusType::FAILURE};
 	return {countriesTree.search(countryId)->data.getMedals()};
-=======
-	if (countryId <= 0)
-		return output_t<int>(StatusType::INVALID_INPUT);
-	else if (!countriesTree.nodeExists(countryId))
-		return output_t<int>(StatusType::FAILURE);
-	else
-	{
-		int medals = countriesTree.search(countryId)->data.getMedals();
-		return output_t<int>(medals);
-	}
-	return 0;
->>>>>>> 34f4e39f2f88b6de94a18d5b2569fbdbcf17e846
 }
 
 output_t<int> Olympics::get_team_strength(int teamId)
 {
-<<<<<<< HEAD
 	if(teamId <= 0)
 		return {StatusType::INVALID_INPUT};
 	if(!teamsTree.nodeExists(teamId))
 		return {StatusType::FAILURE};
-	return {teamsTree.search(teamId)->data.getStrength()};
+	return {teamsTree.search(teamId)->data.getTeamStrength()};
 }
 
 
@@ -219,8 +193,8 @@ output_t<int> Olympics::get_team_strength(int teamId)
  *  @return
  *          int
  */
-template <typename T>
-int inorderToArray(AVLNode<T>* root, AVLNode<T>* arr, int arrSize, int i){
+template <typename T, typename S>
+int inorderToArray(AVLNode<T, S>* root, AVLNode<T, S>* arr, int arrSize, int i){
     if(root == nullptr)
         return i;
 
@@ -238,8 +212,8 @@ int inorderToArray(AVLNode<T>* root, AVLNode<T>* arr, int arrSize, int i){
  *  @return
  *          int
  */
-template <typename T>
-int inorderToTree(AVLNode<T>* root, AVLNode<T>* arr, int arrSize, int i){
+template <typename T, typename S>
+int inorderToTree(AVLNode<T, S>* root, AVLNode<T, S>* arr, int arrSize, int i){
     if(root == nullptr)
         return i;
 
@@ -252,17 +226,6 @@ int inorderToTree(AVLNode<T>* root, AVLNode<T>* arr, int arrSize, int i){
     return inorderToTree(root->rightNode,arr,arrSize,i);
 }
 
-
-template <typename T>
-void getTreeSize(AVLNode<T>* root, int* counter){
-    if(root == nullptr)
-        return;
-
-    getTreeSize(root->leftNode,counter);
-    (*counter)++;
-    getTreeSize(root->rightNode,counter);
-}
-
 /*
  * Combining tree1 and tree2 into newTree (which is nearly-complete and empty) using Inorder arrays
  * Might need operator= for Node placement
@@ -271,17 +234,15 @@ void getTreeSize(AVLNode<T>* root, int* counter){
  * @return -
  *          void
  */
-template <typename T>
-void combineAVLTrees(AVLTree<T>& newTree, AVLTree<T>& tree1, AVLTree<T>& tree2){
-    int size1, size2;
-    getTreeSize(tree1.getRoot(),&size1);
-    getTreeSize(tree2.getRoot(),&size2);
-    AVLNode<T>* arrTree1 = new AVLNode<T>[size1];
-    AVLNode<T>* arrTree2 = new AVLNode<T>[size2];
+template <typename T, typename S>
+void combineAVLTrees(AVLTree<T, S>& newTree, AVLTree<T, S>& tree1, AVLTree<T, S>& tree2){
+    int size1 = tree1.getTreeSize(), size2 = tree2.getTreeSize();
+    AVLNode<T, S>* arrTree1 = new AVLNode<T, S>[size1];
+    AVLNode<T, S>* arrTree2 = new AVLNode<T, S>[size2];
     inorderToArray(tree1.getRoot(),arrTree1,size1,0);
     inorderToArray(tree2.getRoot(),arrTree2,size2,0);
 
-    AVLNode<T>* newArr = new AVLNode<T>[size1 + size2];
+    AVLNode<T, S>* newArr = new AVLNode<T, S>[size1 + size2];
     int i,j,k;
     for(i = 0, j = 0, k = 0; i < size1 && j < size2 && k < size1 + size2;){
         if(arrTree1[i].key <= arrTree2[j].key)
@@ -312,13 +273,13 @@ void combineAVLTrees(AVLTree<T>& newTree, AVLTree<T>& tree1, AVLTree<T>& tree2){
  * @return
  *          AVLNode<T>*
  */
-template <typename T>
-AVLNode<T>* createEmptyTree(int height){
+template <typename T, typename S>
+AVLNode<T, S>* createEmptyTree(int height){
     if(height <= 0)
         return nullptr;
-    AVLNode<T>* node = new AVLNode<T>;
-    node->leftNode = createEmptyTree<T>(height-1);
-    node->rightNode = createEmptyTree<T>(height-1);
+    AVLNode<T, S>* node = new AVLNode<T, S>;
+    node->leftNode = createEmptyTree<T, S>(height-1);
+    node->rightNode = createEmptyTree<T, S>(height-1);
     return node;
 }
 
@@ -331,8 +292,8 @@ AVLNode<T>* createEmptyTree(int height){
  * @return
  *          void
  */
-template <typename T>
-void adjustTreeSize(AVLTree<T>& tree, AVLNode<T>* root, int* toDelete){
+template <typename T, typename S>
+void adjustTreeSize(AVLTree<T, S>& tree, AVLNode<T, S>* root, int* toDelete){
     if(root == nullptr || *toDelete == 0)
         return;
     adjustTreeSize(tree,root->rightNode,toDelete);
@@ -342,18 +303,26 @@ void adjustTreeSize(AVLTree<T>& tree, AVLNode<T>* root, int* toDelete){
     }
     else
         adjustTreeSize(tree,root->leftNode,toDelete);
-=======
-	if (teamId <= 0)
-		return output_t<int>(StatusType::INVALID_INPUT);
-	else if (!teamsTree.nodeExists(teamId))
-		return output_t<int>(StatusType::FAILURE);
-	else
-	{
-		int team_strength = teamsTree.search(teamId)->data.getTeamStrength();
-		return output_t<int>(team_strength);
-	}
-	return 0;
->>>>>>> 34f4e39f2f88b6de94a18d5b2569fbdbcf17e846
+}
+
+/*
+ * Going through the contestants tree and remove contestant from the team
+ * (actually remove the team from contestant)
+ * @param root - the root of the tree currently working on
+ * @param teamID - the team to be removed
+ * @return
+ *          void
+ */
+void removeAllContestantFromTeam(AVLNode<int, Contestant>* root, int teamID){
+    if(root == nullptr)
+        return;
+    removeAllContestantFromTeam(root->leftNode,teamID);
+    for(int i = 0; i < 3; i++){
+        if(root->data.getTeamsId()[i] == teamID){
+            root->data.getTeamsId()[i] = 0;
+        }
+    }
+    removeAllContestantFromTeam(root->rightNode,teamID);
 }
 
 StatusType Olympics::unite_teams(int teamId1, int teamId2)
@@ -369,20 +338,34 @@ StatusType Olympics::unite_teams(int teamId1, int teamId2)
 
     //IndicesTrees
     for(int i = 0; i < 3; i++){
-        int size1, size2;
-        getTreeSize(team1.getIndicesTrees()[i].getRoot(),&size1);
-        getTreeSize(team2.getIndicesTrees()[i].getRoot(),&size2);
+        int size1 = team1.getIndicesTrees()[i].getTreeSize(), size2 = team2.getIndicesTrees()[i].getTreeSize();
         int newSize = size1 + size2;
         int height = std::ceil(std::log(newSize+1))-1;
 
-        AVLNode<Contestant>* newRoot = createEmptyTree<Contestant>(height);
-        AVLTree<Contestant> emptyTree;
+        AVLNode<int, Contestant>* newRoot = createEmptyTree<int, Contestant>(height);
+        AVLTree<int, Contestant> emptyTree;
         emptyTree.setRoot(newRoot);
         int toDelete = (std::pow(2,height+1)-1-newSize);
         adjustTreeSize(emptyTree,emptyTree.getRoot(),&toDelete);
         combineAVLTrees(emptyTree,team1.getIndicesTrees()[i],team2.getIndicesTrees()[i]);
 
-        team1.getIndicesTrees()[i] = emptyTree;
+        team1.getIndicesTrees()[i] = emptyTree; //Not so empty anymore
+        removeAllContestantFromTeam(emptyTree.getRoot(),teamId2);
+    }
+    //StrengthsTrees
+    for(int i = 0; i < 3; i++){
+        int size1 = team1.getStrengthsTrees()[i].getTreeSize(), size2 = team2.getStrengthsTrees()[i].getTreeSize();
+        int newSize = size1 + size2;
+        int height = std::ceil(std::log(newSize+1))-1;
+
+        AVLNode<TwoKeysInt, Contestant>* newRoot = createEmptyTree<TwoKeysInt, Contestant>(height);
+        AVLTree<TwoKeysInt, Contestant> emptyTree;
+        emptyTree.setRoot(newRoot);
+        int toDelete = (std::pow(2,height+1)-1-newSize);
+        adjustTreeSize(emptyTree,emptyTree.getRoot(),&toDelete);
+        combineAVLTrees(emptyTree,team1.getStrengthsTrees()[i],team2.getStrengthsTrees()[i]);
+
+        team1.getStrengthsTrees()[i] = emptyTree; //Not so empty anymore
     }
 
 	return StatusType::FAILURE;
@@ -400,7 +383,7 @@ StatusType Olympics::play_match(int teamId1, int teamId2)
 		return StatusType::FAILURE;
 	Country country1 = countriesTree.search(team1.getCountryId())->data;
 	Country country2 = countriesTree.search(team2.getCountryId())->data;
-	int score1 = country1.getMedals() + team1.getStrength(), score2 = country2.getMedals() + team2.getStrength();
+	int score1 = country1.getMedals() + team1.getTeamStrength(), score2 = country2.getMedals() + team2.getTeamStrength();
 	if(score1 > score2)
 		country1.addMedal();
 	else if(score1 < score2)
@@ -415,7 +398,7 @@ output_t<int> Olympics::austerity_measures(int teamId)
 	if(!teamsTree.nodeExists(teamId))
 		return {StatusType::FAILURE};
 	Team team = teamsTree.search(teamId)->data;
-	if(team.getCountContestant() < 3)
+	if(team.getCurrentCapacity() < 3)
 		return {StatusType::FAILURE};
 	return {team.getMaxStrength()};
 }

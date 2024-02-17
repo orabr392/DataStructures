@@ -228,3 +228,19 @@ void Team::printCurrentContestants()
     std::cout << "\n Third tree: \n";
     indicesTrees[2].printInOrder();
 }
+
+AVLTree<int, Contestant> *Team::getIndicesTrees(){
+    return indicesTrees;
+}
+
+AVLTree<TwoKeysInt, Contestant> *Team::getStrengthsTrees(){
+    return strengthsTrees;
+}
+
+int Team::getCurrentCapacity() {
+    return currentCapacity;
+}
+
+int Team::getMaxStrength() {
+    return maxPossibleStrength;
+}
