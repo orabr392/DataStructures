@@ -244,3 +244,27 @@ int Team::getCurrentCapacity() {
 int Team::getMaxStrength() {
     return maxPossibleStrength;
 }
+
+void Team::clacMaxPossibleStrength() {
+    int maxValueReached = 0;
+    for(int i = 0; i < PARTITIONS; i++){
+        Contestant* minStrengthCont = indicesTrees[i].getLeftMostNode();
+        removeContestantFromTeam(*minStrengthCont);
+        Contestant* secMinStrengthCont = indicesTrees[i].getLeftMostNode();
+        removeContestantFromTeam(*secMinStrengthCont);
+        for(int j = 0; j < PARTITIONS; j++){
+            if(i != j){
+                Contestant* thirdMinStrengthCont = indicesTrees[j].getLeftMostNode();
+                removeContestantFromTeam(*thirdMinStrengthCont);
+                updateStrength();
+                if(strength > maxValueReached)
+                    maxValueReached = strength;
+                insertContestantToTeam(*thirdMinStrengthCont);
+            }
+        }
+        insertContestantToTeam(*secMinStrengthCont);
+        insertContestantToTeam(*minStrengthCont);
+        updateStrength();
+    }
+    maxPossibleStrength = maxValueReached;
+}
