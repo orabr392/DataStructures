@@ -26,9 +26,9 @@
 class Olympics
 {
 private:
-	AVLTree<Country> countriesTree;
-	AVLTree<Team> teamsTree;
-	AVLTree<Contestant> contestantsTree;
+	AVLTree<int, Country> countriesTree;
+	AVLTree<int, Team> teamsTree;
+	AVLTree<int, Contestant> contestantsTree;
 
 public:
     template <typename T>
@@ -68,6 +68,10 @@ public:
 	StatusType play_match(int teamId1, int teamId2);
 
 	output_t<int> austerity_measures(int teamId);
+
+	// TEMPORARY FOR TESTING:
+
+	Team get_team(int teamId);
 
 	// } </DO-NOT-MODIFY>
 };

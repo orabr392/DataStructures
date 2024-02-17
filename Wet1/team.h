@@ -3,7 +3,14 @@
 
 #include "AVLTree.h"
 #include "Contestant.h"
+#include "Country.h"
+#include "TwoKeysInt.h"
 #include "wet1util.h"
+
+#define PARTITIONS 3
+#define IDXRANGE 2
+#define RIGHTMOSTNODE 1
+#define LEFTMOSTNODE 0
 
 class Team
 {
@@ -13,24 +20,33 @@ private:
     Sport sport;
     int strength;
     int maxPossibleStrength;
-    int countContestant;
-    AVLTree<Contestant> indicesTrees[3];
-    AVLTree<Contestant> strengthsTrees[3];
+    int currentCapacity;
+    Country *country;
+    int capacityInSubTree[PARTITIONS];
+    AVLTree<int, Contestant> indicesTrees[PARTITIONS];
+    AVLTree<TwoKeysInt, Contestant> strengthsTrees[PARTITIONS];
+    void insertIntoPartition(Contestant contestant, int partition);
+    void removeContestantFromPartition(Contestant contestant, int partition);
+    Contestant removeFromPartition(int partition, bool leftMostEnd);
+    void leftShift(int partition);
+    void rightShift(int partition);
+    void updateStrength();
 
 public:
-    Team() = default;
-    Team(int teamId, int countryId, Sport sport);
+    Team();
+    Team(int teamId, int countryId, Sport sport, Country *country);
     ~Team() = default;
     bool isTeamEmpty();
+    Country *getCountry();
+    int getTeamStrength();
     int getCountryId();
-    int getStrength();
+    bool insertContestantToTeam(Contestant contestant);
+    bool removeContestantFromTeam(Contestant contestant);
     Sport getSport();
-    int getCountContestant();
-    int getMaxStrength();
-    AVLTree<Contestant> *getIndicesTrees();
-    AVLTree<Contestant> *getStrengthsTrees();
+
+    // TEMPORARY FOR TESTING:
+
+    void printCurrentContestants();
 };
-
-
 
 #endif

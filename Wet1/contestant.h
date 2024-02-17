@@ -3,6 +3,7 @@
 
 #define TEAMSCAP 3
 
+#include "Country.h"
 #include "wet1util.h"
 
 class Contestant
@@ -14,25 +15,25 @@ private:
     Sport sport;
     int teamsCounter;
     int teamsId[TEAMSCAP];
+    Country *country;
 
 public:
-    Contestant() = default;
-    Contestant(int contestantId, int countryId, Sport sport, int strength);
+    Contestant();
+    Contestant(int contestantId, int countryId, Sport sport, int strength, Country *country);
     ~Contestant() = default;
     bool isContestantActive();
+    bool insertTeam(int teamId);
+    bool leaveTeam(int teamId);
+    bool isContestantOnTeam(int teamId);
+    bool isContestantAvailable();
+    bool doesContestantBelongToTeam(int teamId);
+    Country *getCountry();
     int getCountryId();
-    int getStrength();
     int getContestantId();
-    //friend std::ostream& operator<<(std::ostream& os, const Contestant& c);
+    int getContestantStrength();
+    void changeContestantStrength(int change);
+    int *getTeamsId();
+    Sport getSport();
 };
-
-
-
-//std::ostream &operator<<(std::ostream &os, const Contestant &c) {
-//    os << c.getContestantId();
-//    return os;
-//}
-
-
 
 #endif

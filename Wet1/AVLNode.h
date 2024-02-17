@@ -1,11 +1,11 @@
 #ifndef AVLNODE_H_
 #define AVLNODE_H_
 
-template <class dataType>
+template <class dataType1, class dataType2>
 struct AVLNode
 {
-    int key;
-    dataType data;
+    dataType1 key;
+    dataType2 data;
     int height;
     int heightLeft;
     int heightRight;
