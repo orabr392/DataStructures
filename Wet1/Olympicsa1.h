@@ -65,6 +65,10 @@ public:
 
 	output_t<int> austerity_measures(int teamId);
 
+	// TEMPORARY FOR TESTING:
+
+	Team get_team(int teamId);
+
 	// } </DO-NOT-MODIFY>
 };
 

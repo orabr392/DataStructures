@@ -10,10 +10,6 @@ Team::Team(int teamId, int countryId, Sport sport, Country *country) : teamId(te
     for (int i = 0; i < PARTITIONS; i++)
     {
         capacityInSubTree[i] = 0;
-        for (int j = 0; j < IDXRANGE; j++)
-        {
-            indexRanges[i][j] = 0;
-        }
     }
 }
 
@@ -40,35 +36,41 @@ Sport Team::getSport()
 void Team::insertIntoPartition(Contestant contestant, int partition)
 {
     int contestantId = contestant.getContestantId();
-    // int contestantStrength = contestant.getContestantStrength();
-    // TwoKeysInt twoKeys(contestantStrength, contestantId);
+    int contestantStrength = contestant.getContestantStrength();
+    TwoKeysInt twoKeys(contestantStrength, contestantId);
     indicesTrees[partition].insert(contestantId, contestant);
-    // strengthsTrees[partition].insert(twoKeys, contestant);
+    strengthsTrees[partition].insert(twoKeys, contestant);
     capacityInSubTree[partition]++;
 }
 
-Contestant Team::removeFromPartition(int partition, bool leftMostEnd)
+Contestant Team::removeFromPartition(int partition, bool rightMostNode)
 {
-    Contestant contestant;
-    if (!leftMostEnd)
+    Contestant *contestant;
+    if (rightMostNode)
         contestant = indicesTrees[partition].getRightMostNode();
     else
         contestant = indicesTrees[partition].getLeftMostNode();
-    // TwoKeysInt twoKeys(contestant.getContestantStrength(), contestant.getContestantId());
-    // strengthsTrees->remove(twoKeys);
-    indicesTrees->remove(contestant.getContestantId());
+    TwoKeysInt twoKeys(contestant->getContestantStrength(), contestant->getContestantId());
+    if (!strengthsTrees[partition].remove(twoKeys))
+    {
+        // Throw an exception
+    }
+    if (!indicesTrees[partition].remove(contestant->getContestantId()))
+    {
+        // Throw an exception
+    }
     capacityInSubTree[partition]--;
-    return contestant;
+    return *contestant;
 }
 
 bool Team::insertContestantToTeam(Contestant contestant)
 {
-    currentCapacity++;
+
     // Insert into bucket 0
     insertIntoPartition(contestant, 0);
 
     // Remove from bucket 0 if needed
-    if (capacityInSubTree[0] == currentCapacity / 3 + 1)
+    if (capacityInSubTree[0] > (currentCapacity / 3) + 1)
     {
         contestant = removeFromPartition(0, RIGHTMOSTNODE);
 
@@ -76,7 +78,7 @@ bool Team::insertContestantToTeam(Contestant contestant)
         insertIntoPartition(contestant, 1);
 
         // Remove from bucket 2 if needed
-        if (capacityInSubTree[1] == currentCapacity / 3 + 1)
+        if (capacityInSubTree[1] > (currentCapacity / 3) + 1)
         {
             contestant = removeFromPartition(1, RIGHTMOSTNODE);
 
@@ -84,6 +86,8 @@ bool Team::insertContestantToTeam(Contestant contestant)
             insertIntoPartition(contestant, 2);
         }
     }
+
+    currentCapacity++;
     updateStrength();
     return true;
 }
@@ -181,13 +185,14 @@ void Team::rightShift(int partition)
 
 void Team::removeContestantFromPartition(Contestant contestant, int partition)
 {
-    // TwoKeysInt twoKey(contestant.getContestantStrength(), contestant.getContestantId());
+    TwoKeysInt twoKey(contestant.getContestantStrength(), contestant.getContestantId());
     indicesTrees[partition].remove(contestant.getContestantId());
-    // strengthsTrees[partition].remove(twoKey);
+    strengthsTrees[partition].remove(twoKey);
 }
 
 void Team::updateStrength()
 {
+    Contestant *contestant;
     if (currentCapacity % PARTITIONS != 0)
     {
         strength = 0;
@@ -197,7 +202,13 @@ void Team::updateStrength()
         int sum = 0;
         for (int i = 0; i < PARTITIONS; i++)
         {
-            // sum += strengthsTrees[i].getRightMostNode().getContestantStrength();
+            contestant = strengthsTrees[i].getRightMostNode();
+            if (contestant != nullptr)
+                sum += contestant->getContestantStrength();
+            else
+            {
+                // Throw an exception
+            }
         }
         strength = sum;
     }
@@ -206,4 +217,14 @@ void Team::updateStrength()
 int Team::getTeamStrength()
 {
     return strength;
+}
+
+void Team::printCurrentContestants()
+{
+    std::cout << "\n First tree: \n";
+    indicesTrees[0].printInOrder();
+    std::cout << "\n Second tree: \n";
+    indicesTrees[1].printInOrder();
+    std::cout << "\n Third tree: \n";
+    indicesTrees[2].printInOrder();
 }

@@ -15,7 +15,7 @@ Olympics::~Olympics()
 
 StatusType Olympics::add_country(int countryId, int medals)
 {
-	if (countryId <= 0 || medals <= 0)
+	if (countryId <= 0 || medals < 0)
 	{
 		return StatusType::INVALID_INPUT;
 	}
@@ -140,16 +140,21 @@ StatusType Olympics::update_contestant_strength(int contestantId, int change)
 		contestantsTree.search(contestantId)->data.getContestantStrength() + change < 0)
 		return StatusType::FAILURE;
 
-	int *teamsId = contestantsTree.search(contestantId)->data.getTeamsId();
+	int *teamsIdCopy = contestantsTree.search(contestantId)->data.getTeamsId();
 	for (int i = 0; i < PARTITIONS; i++)
 	{
-		remove_contestant_from_team(*(teamsId + i), contestantId);
+		remove_contestant_from_team(*(teamsIdCopy + i), contestantId);
 	}
+
 	contestantsTree.search(contestantId)->data.changeContestantStrength(change);
+
 	for (int i = 0; i < PARTITIONS; i++)
 	{
-		add_contestant_to_team(*(teamsId + i), contestantId);
+		add_contestant_to_team(*(teamsIdCopy + i), contestantId);
 	}
+
+	// Free the copied array
+	delete teamsIdCopy;
 	return StatusType::SUCCESS;
 }
 
@@ -207,4 +212,9 @@ StatusType Olympics::play_match(int teamId1, int teamId2)
 output_t<int> Olympics::austerity_measures(int teamId)
 {
 	return 0;
+}
+
+Team Olympics::get_team(int teamId)
+{
+	return teamsTree.search(teamId)->data;
 }

@@ -99,7 +99,14 @@ bool Contestant::leaveTeam(int teamId)
 
 int *Contestant::getTeamsId()
 {
-    return teamsId;
+
+    int *teamsIdCopy = new int[3];
+    for (int i = 0; i < TEAMSCAP; i++)
+    {
+        teamsIdCopy[i] = teamsId[i];
+    }
+
+    return teamsIdCopy;
 }
 
 void Contestant::changeContestantStrength(int change)

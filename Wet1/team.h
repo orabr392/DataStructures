@@ -23,9 +23,8 @@ private:
     int currentCapacity;
     Country *country;
     int capacityInSubTree[PARTITIONS];
-    int indexRanges[PARTITIONS][IDXRANGE];
     AVLTree<int, Contestant> indicesTrees[PARTITIONS];
-    // AVLTree<TwoKeysInt, Contestant> strengthsTrees[PARTITIONS];
+    AVLTree<TwoKeysInt, Contestant> strengthsTrees[PARTITIONS];
     void insertIntoPartition(Contestant contestant, int partition);
     void removeContestantFromPartition(Contestant contestant, int partition);
     Contestant removeFromPartition(int partition, bool leftMostEnd);
@@ -44,6 +43,10 @@ public:
     bool insertContestantToTeam(Contestant contestant);
     bool removeContestantFromTeam(Contestant contestant);
     Sport getSport();
+
+    // TEMPORARY FOR TESTING:
+
+    void printCurrentContestants();
 };
 
 #endif

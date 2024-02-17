@@ -31,8 +31,8 @@ public:
     bool isTreeEmpty();
     bool insert(dataType1 key, dataType2 data);
     bool remove(dataType1 key);
-    dataType2 getRightMostNode();
-    dataType2 getLeftMostNode();
+    dataType2 *getRightMostNode();
+    dataType2 *getLeftMostNode();
     void printInOrder();
 };
 

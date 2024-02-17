@@ -2,6 +2,7 @@
 #include "Contestant.h"
 #include "Country.h"
 #include "Team.h"
+#include "TwoKeysInt.h"
 
 template <class dataType1, class dataType2>
 AVLTree<dataType1, dataType2>::AVLTree()
@@ -548,21 +549,23 @@ void AVLTree<dataType1, dataType2>::printInOrder()
 }
 
 template <class dataType1, class dataType2>
-dataType2 AVLTree<dataType1, dataType2>::getRightMostNode()
+dataType2 *AVLTree<dataType1, dataType2>::getRightMostNode()
 {
     AVLNode<dataType1, dataType2> *temp = root;
+    if (temp == nullptr)
+        return nullptr;
     while (temp->rightNode != nullptr)
         temp = temp->rightNode;
-    return temp->data;
+    return &temp->data;
 }
 
 template <class dataType1, class dataType2>
-dataType2 AVLTree<dataType1, dataType2>::getLeftMostNode()
+dataType2 *AVLTree<dataType1, dataType2>::getLeftMostNode()
 {
     AVLNode<dataType1, dataType2> *temp = root;
     while (temp->leftNode != nullptr)
         temp = temp->leftNode;
-    return temp->data;
+    return &temp->data;
 }
 
 template <class dataType1, class dataType2>
@@ -579,3 +582,4 @@ void AVLTree<dataType1, dataType2>::printInOrderAux(AVLNode<dataType1, dataType2
 template class AVLTree<int, Country>;
 template class AVLTree<int, Team>;
 template class AVLTree<int, Contestant>;
+template class AVLTree<TwoKeysInt, Contestant>;
