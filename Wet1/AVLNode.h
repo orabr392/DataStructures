@@ -2,8 +2,9 @@
 #define AVLNODE_H_
 
 template <class dataType1, class dataType2>
-struct AVLNode
+class AVLNode
 {
+public:
     dataType1 key;
     dataType2 data;
     int height;
@@ -18,6 +19,9 @@ struct AVLNode
     AVLNode *rightNode;
 
     AVLNode *parentNode;
+
+    AVLNode();
+    AVLNode<dataType1,dataType2>& operator=(const AVLNode<dataType1,dataType2>& other);
 };
 
 #endif

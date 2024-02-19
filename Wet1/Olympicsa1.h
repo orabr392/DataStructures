@@ -70,6 +70,15 @@ public:
 	// TEMPORARY FOR TESTING:
 
 	Team get_team(int teamId);
+    AVLTree<int, Country>* getCountriesTree(){
+        return &countriesTree;
+    }
+    AVLTree<int, Contestant>* getContestantsTree(){
+        return &contestantsTree;
+    }
+    AVLTree<int, Team>* getTeamsTree(){
+        return &teamsTree;
+    }
 
 	// } </DO-NOT-MODIFY>
 };

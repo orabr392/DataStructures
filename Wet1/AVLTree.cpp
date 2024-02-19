@@ -727,7 +727,144 @@ void AVLTree<dataType1, dataType2>::printInOrderAux(AVLNode<dataType1, dataType2
     std::cout << node->key << std::endl;
     printInOrderAux(node->rightNode);
 }
+template <class dataType1, class dataType2>
+int AVLTree<dataType1, dataType2>::getTreeSize()
+{
+    return treeSize;
+}
 
+/*
+ * Running Inorder traversal and placing nodes into array
+ * @param root - tree to be copied into array
+ * @param arr - array to store the tree
+ *  @return
+ *          int
+ */
+template <typename dataType1, typename dataType2>
+int AVLTree<dataType1, dataType2>::inorderToArray(AVLNode<dataType1, dataType2> *root, AVLNode<dataType1, dataType2> *arr, int arrSize, int i)
+{
+    if (root == nullptr)
+        return i;
+
+    i = inorderToArray(root->leftNode, arr, arrSize, i);
+    if (i > arrSize - 1)
+        return i;
+    arr[i++] = *root;
+    return inorderToArray(root->rightNode, arr, arrSize, i);
+}
+
+/*
+ * Running inorder traversal and placing arrays' items into the nearly-complete empty tree
+ *  @param root - tree to store the array
+ *  @param arr - array to be copied into tree
+ *  @return
+ *          int
+ */
+template <typename dataType1, typename dataType2>
+int AVLTree<dataType1, dataType2>::inorderToTree(AVLNode<dataType1, dataType2> *root, AVLNode<dataType1, dataType2> *arr, int arrSize, int i)
+{
+    if (root == nullptr)
+        return i;
+
+    i = inorderToTree(root->leftNode, arr, arrSize, i);
+    if (i > arrSize - 1)
+        return i;
+    *root = arr[i++];
+    while (arr[i].key == root->key)
+        i++;
+    return inorderToTree(root->rightNode, arr, arrSize, i);
+}
+
+/*
+ * Combining tree1 and tree2 into newTree (which is nearly-complete and empty) using Inorder arrays
+ * Might need operator= for Node placement
+ * O(n1+n2)
+ * @param - newTree, tree1, tree2
+ * @return -
+ *          void
+ */
+template <typename dataType1, typename dataType2>
+void AVLTree<dataType1, dataType2>::combineAVLTrees(AVLTree<dataType1, dataType2> &newTree, AVLTree<dataType1, dataType2> &tree1, AVLTree<dataType1, dataType2> &tree2)
+{
+    int size1 = tree1.getTreeSize(), size2 = tree2.getTreeSize();
+    AVLNode<dataType1, dataType2> *arrTree1 = new AVLNode<dataType1, dataType2>[size1];
+    AVLNode<dataType1, dataType2> *arrTree2 = new AVLNode<dataType1, dataType2>[size2];
+    inorderToArray(tree1.getRoot(), arrTree1, size1, 0);
+    inorderToArray(tree2.getRoot(), arrTree2, size2, 0);
+
+    AVLNode<dataType1, dataType2> *newArr = new AVLNode<dataType1, dataType2>[size1 + size2];
+    int i, j, k;
+    for (i = 0, j = 0, k = 0; i < size1 && j < size2 && k < size1 + size2;)
+    {
+        if (arrTree1[i].key <= arrTree2[j].key)
+            newArr[k++] = arrTree1[i++];
+        else if (arrTree1[i].key > arrTree2[j].key)
+            newArr[k++] = arrTree2[j++];
+    }
+    if (i < size1)
+    {
+        for (; i < size1; i++, k++)
+            newArr[k] = arrTree1[i];
+    }
+    else if (j < size2)
+    {
+        for (; j < size2; j++, k++)
+            newArr[k] = arrTree2[j];
+    }
+
+    inorderToTree(newTree.getRoot(), newArr, size1 + size2, 0);
+
+    delete[] arrTree1;
+    delete[] arrTree2;
+    delete[] newArr;
+}
+
+/*
+ * Create new empty complete tree using Preorder traversal
+ * @param height - the height of the complete tree
+ * @return
+ *          AVLNode<T>*
+ */
+template <typename dataType1, typename dataType2>
+AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::createEmptyTree(int height)
+{
+    if (height <= 0)
+        return nullptr;
+    AVLNode<dataType1, dataType2> *node = new AVLNode<dataType1, dataType2>();
+    node->leftNode = createEmptyTree(height - 1);
+    node->rightNode = createEmptyTree(height - 1);
+    return node;
+}
+
+/*
+ * Remove the leafs from the complete tree, so it will be nearly complete, using Inorder traversal
+ * THIS FUNCTION ASSUMES A DEFAULT KEY VALUE FOR EMPTY NODES
+ * @param tree - the tree to adjust its size
+ * @param root - the current node that is being worked on
+ * @param toDelete - the amount of nodes to remove
+ * @return
+ *          void
+ */
+template <typename dataType1, typename dataType2>
+void AVLTree<dataType1, dataType2>::adjustTreeSize(AVLTree<dataType1, dataType2> &tree, AVLNode<dataType1, dataType2> *root, int *toDelete)
+{
+    if (root == nullptr || *toDelete == 0)
+        return;
+    adjustTreeSize(tree, root->rightNode, toDelete);
+    if (root->rightNode == nullptr && root->leftNode == nullptr)
+    {
+        AVLNode<dataType1, dataType2>* temp = root;
+        if(root->parentNode->rightNode == root){
+            root->parentNode->rightNode = nullptr;
+        } else if(root->parentNode->leftNode == root){
+            root->parentNode->leftNode = nullptr;
+        }
+        delete temp;
+        (*toDelete)--;
+    }
+    else
+        adjustTreeSize(tree, root->leftNode, toDelete);
+}
 template class AVLTree<int, Country>;
 template class AVLTree<int, Team>;
 template class AVLTree<int, Contestant>;

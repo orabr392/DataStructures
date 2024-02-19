@@ -1,7 +1,7 @@
 #include "TwoKeysInt.h"
 #include <iostream>
 
-TwoKeysInt::TwoKeysInt()
+TwoKeysInt::TwoKeysInt() : key1(-1), key2(-1)
 {
 }
 
