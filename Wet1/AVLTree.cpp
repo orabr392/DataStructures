@@ -583,6 +583,11 @@ void AVLTree<dataType1, dataType2>::printInOrderAux(AVLNode<dataType1, dataType2
     printInOrderAux(node->rightNode);
 }
 
+template<class dataType1, class dataType2>
+int AVLTree<dataType1, dataType2>::getTreeSize() {
+    return treeSize;
+}
+
 template class AVLTree<int, Country>;
 template class AVLTree<int, Team>;
 template class AVLTree<int, Contestant>;
