@@ -732,7 +732,6 @@ template <class dataType1, class dataType2>
 int AVLTree<dataType1, dataType2>::getTreeSize()
 {
     return treeSize;
-    s
 }
 
 /*
@@ -833,8 +832,8 @@ AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::createEmptyTree(in
     if (height <= 0)
         return nullptr;
     AVLNode<dataType1, dataType2> *node = new AVLNode<dataType1, dataType2>;
-    node->leftNode = createEmptyTree<dataType1, dataType2>(height - 1);
-    node->rightNode = createEmptyTree<dataType1, dataType2>(height - 1);
+    node->leftNode = createEmptyTree(height - 1);
+    node->rightNode = createEmptyTree(height - 1);
     return node;
 }
 

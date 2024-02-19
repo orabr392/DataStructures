@@ -104,7 +104,7 @@ bool Team::insertContestantToTeam(Contestant contestant)
 
     currentCapacity++;
     updateStrength();
-    calcMaxPossibleStrength();
+    // calcMaxPossibleStrength();
     return true;
 }
 
@@ -185,7 +185,7 @@ bool Team::removeContestantFromTeam(Contestant contestant)
     }
     currentCapacity--;
     updateStrength();
-    calcMaxPossibleStrength();
+    // calcMaxPossibleStrength();
     return true;
 }
 
