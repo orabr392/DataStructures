@@ -26,13 +26,13 @@ public:
     bool leaveTeam(int teamId);
     bool isContestantOnTeam(int teamId);
     bool isContestantAvailable();
-    bool doesContestantBelongToTeam(int teamId);
     Country *getCountry();
     int getCountryId();
     int getContestantId();
     int getContestantStrength();
-    void changeContestantStrength(int change);
     int *getTeamsId();
+    void changeContestantStrength(int change);
+    void copyTeamsId(int *copiedTeamsId);
     Sport getSport();
 };
 
