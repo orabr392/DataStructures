@@ -368,7 +368,7 @@ StatusType Olympics::unite_teams(int teamId1, int teamId2)
         team1.getStrengthsTrees()[i] = emptyTree; //Not so empty anymore
     }
 
-	return StatusType::FAILURE;
+	return StatusType::SUCCESS;
 }
 
 StatusType Olympics::play_match(int teamId1, int teamId2)
