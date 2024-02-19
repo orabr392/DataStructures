@@ -139,7 +139,10 @@ StatusType Olympics::add_contestant_to_team(int teamId, int contestantId)
 	if (contestant->insertTeam(teamId))
 	{
 		if (team->insertContestantToTeam(*contestant))
+		{
+			team->calcMaxPossibleStrength();
 			return StatusType::SUCCESS;
+		}
 		return StatusType::ALLOCATION_ERROR;
 	}
 	return StatusType::ALLOCATION_ERROR;
@@ -314,13 +317,13 @@ StatusType Olympics::play_match(int teamId1, int teamId2)
 output_t<int> Olympics::austerity_measures(int teamId)
 {
 	if (teamId <= 0)
-		return {StatusType::INVALID_INPUT};
+		return output_t<int>(StatusType::INVALID_INPUT);
 	if (!teamsTree.nodeExists(teamId))
-		return {StatusType::FAILURE};
-	Team team = teamsTree.search(teamId)->data;
-	if (team.getCurrentCapacity() < 3)
-		return {StatusType::FAILURE};
-	return {team.getMaxStrength()};
+		return output_t<int>(StatusType::FAILURE);
+	Team *team = &teamsTree.search(teamId)->data;
+	if (team->getCurrentCapacity() < 3)
+		return output_t<int>(StatusType::FAILURE);
+	return output_t<int>(team->getMaxStrength());
 }
 
 Team Olympics::get_team(int teamId)

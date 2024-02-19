@@ -30,6 +30,7 @@ private:
     Contestant removeFromPartition(int partition, bool leftMostEnd);
     void leftShift(int partition);
     void rightShift(int partition);
+    void swapBetweenPartitions(int partition);
     void updateStrength();
 
 public:
@@ -51,6 +52,7 @@ public:
     // TEMPORARY FOR TESTING:
 
     void printCurrentContestants();
+    void printCurrentStrengths();
 };
 
 #endif
