@@ -707,6 +707,8 @@ template <class dataType1, class dataType2>
 dataType2 *AVLTree<dataType1, dataType2>::getLeftMostNode()
 {
     AVLNode<dataType1, dataType2> *temp = root;
+    if (temp == nullptr)
+        return nullptr;
     while (temp->leftNode != nullptr)
         temp = temp->leftNode;
     return &temp->data;
