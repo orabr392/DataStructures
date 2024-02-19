@@ -42,7 +42,7 @@ public:
     int getCountryId();
     bool insertContestantToTeam(Contestant contestant);
     bool removeContestantFromTeam(Contestant contestant);
-    void clacMaxPossibleStrength();
+    void calcMaxPossibleStrength();
     Sport getSport();
     AVLTree<int, Contestant> *getIndicesTrees();
     AVLTree<TwoKeysInt, Contestant> *getStrengthsTrees();

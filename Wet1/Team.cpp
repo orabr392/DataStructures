@@ -1,9 +1,15 @@
 #include "Team.h"
 
+/*
+ *   Team: Empty Constructor
+ */
 Team::Team()
 {
 }
 
+/*
+ *   Team: A non empty Constructor, initializes variables
+ */
 Team::Team(int teamId, int countryId, Sport sport, Country *country) : teamId(teamId), countryId(countryId), sport(sport), country(country)
 {
     strength = maxPossibleStrength = currentCapacity = 0;
@@ -33,6 +39,9 @@ Sport Team::getSport()
     return sport;
 }
 
+/*
+ *   insertIntoParition: Inserts a given contestant into a given partition
+ */
 void Team::insertIntoPartition(Contestant contestant, int partition)
 {
     int contestantId = contestant.getContestantId();
@@ -43,6 +52,9 @@ void Team::insertIntoPartition(Contestant contestant, int partition)
     capacityInSubTree[partition]++;
 }
 
+/*
+ *   removeFromPartition: Remove either the left or right most contestant from a given partitions
+ */
 Contestant Team::removeFromPartition(int partition, bool rightMostNode)
 {
     Contestant *contestant;
@@ -63,6 +75,9 @@ Contestant Team::removeFromPartition(int partition, bool rightMostNode)
     return *contestant;
 }
 
+/*
+ *   insertContestantToTeam: A wrapper function that inserts the given contestant to the team's trees
+ */
 bool Team::insertContestantToTeam(Contestant contestant)
 {
 
@@ -89,9 +104,13 @@ bool Team::insertContestantToTeam(Contestant contestant)
 
     currentCapacity++;
     updateStrength();
+    // calcMaxPossibleStrength();
     return true;
 }
 
+/*
+ *   removeContestantFromTeam: Removes given contestant from the team
+ */
 bool Team::removeContestantFromTeam(Contestant contestant)
 {
     // Find the right bucket to remove contestant from
@@ -166,9 +185,13 @@ bool Team::removeContestantFromTeam(Contestant contestant)
     }
     currentCapacity--;
     updateStrength();
+    // calcMaxPossibleStrength();
     return true;
 }
 
+/*
+ *   leftShift: Removes the left most contestant from the given partition and inserts him to the previous one
+ */
 void Team::leftShift(int partition)
 {
     int nextPartition = partition - 1;
@@ -176,6 +199,9 @@ void Team::leftShift(int partition)
     insertIntoPartition(contestant, nextPartition);
 }
 
+/*
+ *   leftShift: Removes the right most contestant from the given partition and inserts him to the next one
+ */
 void Team::rightShift(int partition)
 {
     int nextPartition = partition + 1;
@@ -183,6 +209,9 @@ void Team::rightShift(int partition)
     insertIntoPartition(contestant, nextPartition);
 }
 
+/*
+ *   removeContestantFromPartition: Removes a given contestant from a given partition
+ */
 void Team::removeContestantFromPartition(Contestant contestant, int partition)
 {
     TwoKeysInt twoKey(contestant.getContestantStrength(), contestant.getContestantId());
@@ -190,6 +219,9 @@ void Team::removeContestantFromPartition(Contestant contestant, int partition)
     strengthsTrees[partition].remove(twoKey);
 }
 
+/*
+ *   updateStrength: Updates the team's strength
+ */
 void Team::updateStrength()
 {
     Contestant *contestant;
@@ -229,35 +261,46 @@ void Team::printCurrentContestants()
     indicesTrees[2].printInOrder();
 }
 
-AVLTree<int, Contestant> *Team::getIndicesTrees(){
+AVLTree<int, Contestant> *Team::getIndicesTrees()
+{
     return indicesTrees;
 }
 
-AVLTree<TwoKeysInt, Contestant> *Team::getStrengthsTrees(){
+AVLTree<TwoKeysInt, Contestant> *Team::getStrengthsTrees()
+{
     return strengthsTrees;
 }
 
-int Team::getCurrentCapacity() {
+int Team::getCurrentCapacity()
+{
     return currentCapacity;
 }
 
-int Team::getMaxStrength() {
+int Team::getMaxStrength()
+{
     return maxPossibleStrength;
 }
 
-void Team::clacMaxPossibleStrength() {
+/*
+ *   calcMaxPossibleStrength: Calculate the max possible strength if we were to remove 3 contestants
+ */
+void Team::calcMaxPossibleStrength()
+{
     int maxValueReached = 0;
-    for(int i = 0; i < PARTITIONS; i++){
-        Contestant* minStrengthCont = indicesTrees[i].getLeftMostNode();
+    for (int i = 0; i < PARTITIONS; i++)
+    {
+        Contestant *minStrengthCont = indicesTrees[i].getLeftMostNode();
         removeContestantFromTeam(*minStrengthCont);
-        Contestant* secMinStrengthCont = indicesTrees[i].getLeftMostNode();
+        Contestant *secMinStrengthCont = indicesTrees[i].getLeftMostNode();
         removeContestantFromTeam(*secMinStrengthCont);
-        for(int j = 0; j < PARTITIONS; j++){
-            if(i != j){
-                Contestant* thirdMinStrengthCont = indicesTrees[j].getLeftMostNode();
+        for (int j = 0; j < PARTITIONS; j++)
+        {
+            if (i != j)
+            {
+                Contestant *thirdMinStrengthCont = indicesTrees[j].getLeftMostNode();
                 removeContestantFromTeam(*thirdMinStrengthCont);
                 updateStrength();
-                if(strength > maxValueReached)
+                if (strength > maxValueReached)
                     maxValueReached = strength;
                 insertContestantToTeam(*thirdMinStrengthCont);
             }

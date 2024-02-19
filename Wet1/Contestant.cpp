@@ -1,9 +1,16 @@
 #include "Contestant.h"
 
+/**
+ *   Contestant: Empty Constructor
+ */
 Contestant::Contestant()
 {
 }
 
+/**
+ *   Contestant: A non empty Constructor
+ *
+ */
 Contestant::Contestant(int contestantId, int countryId, Sport sport, int strength, Country *country) : contestantId(contestantId), countryId(countryId), strength(strength), country(country)
 {
     sport = sport;
@@ -14,6 +21,9 @@ Contestant::Contestant(int contestantId, int countryId, Sport sport, int strengt
     }
 }
 
+/*
+ *   insertTeam: Insert the given teamId to the teamsId array
+ */
 bool Contestant::insertTeam(int teamId)
 {
     for (int i = 0; i < TEAMSCAP; i++)
@@ -27,11 +37,17 @@ bool Contestant::insertTeam(int teamId)
     return false;
 }
 
+/*
+ *   isContestantAvailable - Checks if the contestant can still join a new team
+ */
 bool Contestant::isContestantAvailable()
 {
     return (!teamsId[0] || !teamsId[1] || !teamsId[2]);
 }
 
+/*
+ *   isContestantOnTeam - Checks if the contestant is on the given teamId
+ */
 bool Contestant::isContestantOnTeam(int teamId)
 {
     for (int i = 0; i < TEAMSCAP; i++)
@@ -42,6 +58,9 @@ bool Contestant::isContestantOnTeam(int teamId)
     return false;
 }
 
+/*
+ *   isContestantActive - Checks if the contestant is part of a team
+ */
 bool Contestant::isContestantActive()
 {
     if (teamsId[0] || teamsId[1] || teamsId[2])
@@ -74,16 +93,9 @@ int Contestant::getContestantStrength()
     return strength;
 }
 
-bool Contestant::doesContestantBelongToTeam(int teamId)
-{
-    for (int i = 0; i < TEAMSCAP; i++)
-    {
-        if (teamId == teamsId[i])
-            return true;
-    }
-    return false;
-}
-
+/*
+ *   leaveTeam: Set the array[i] such that array[i] equals teamId be 0
+ */
 bool Contestant::leaveTeam(int teamId)
 {
     for (int i = 0; i < TEAMSCAP; i++)
@@ -97,18 +109,25 @@ bool Contestant::leaveTeam(int teamId)
     return false;
 }
 
-int *Contestant::getTeamsId()
+/*
+ *   copyTeamsId: Copy the teamsId array to a given array
+ */
+void Contestant::copyTeamsId(int *copiedTeamsId)
 {
-
-    int *teamsIdCopy = new int[3];
     for (int i = 0; i < TEAMSCAP; i++)
     {
-        teamsIdCopy[i] = teamsId[i];
+        copiedTeamsId[i] = teamsId[i];
     }
-
-    return teamsIdCopy;
 }
 
+int *Contestant::getTeamsId()
+{
+    return teamsId;
+}
+
+/*
+ *   changeContestantStrength: Increase the contestant strength by change (could be negative)
+ */
 void Contestant::changeContestantStrength(int change)
 {
     strength += change;

@@ -4,6 +4,9 @@
 #include "Team.h"
 #include "TwoKeysInt.h"
 
+/**
+ *   AVLTree: Empty constructor
+ */
 template <class dataType1, class dataType2>
 AVLTree<dataType1, dataType2>::AVLTree()
 {
@@ -11,6 +14,9 @@ AVLTree<dataType1, dataType2>::AVLTree()
     treeSize = 0;
 }
 
+/*
+ *   ~AVLTree(): Destructor
+ */
 template <class dataType1, class dataType2>
 AVLTree<dataType1, dataType2>::~AVLTree()
 {
@@ -18,6 +24,11 @@ AVLTree<dataType1, dataType2>::~AVLTree()
         destroy(root);
 }
 
+/*
+ *   destroy: Removes each node using postorder search
+ *
+ *  @param node - Pointer to an AVLNode, which is a either a leaf or an internal node
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::destroy(AVLNode<dataType1, dataType2> *node)
 {
@@ -29,6 +40,16 @@ void AVLTree<dataType1, dataType2>::destroy(AVLNode<dataType1, dataType2> *node)
     }
 }
 
+/*
+ *  search: Search for the node with a given key,
+ *  in case it does not exist it returns closest node (from the left)
+ *
+ * @param key - The unique key of the node
+ * @return
+ * 	nullptr - The tree is empty
+ *  AVLNode* - The closest node to the target
+ *
+ */
 template <class dataType1, class dataType2>
 AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::search(dataType1 key)
 {
@@ -59,6 +80,14 @@ AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::search(dataType1 k
     return parent;
 }
 
+/*
+ *  nodeExists: Checks whether a node with the given key exists
+ *
+ * @param key - The unique key of the node
+ * @return
+ * 	true - There exists the node with this key
+ *  false - There doesnt exists a node with this key
+ */
 template <class dataType1, class dataType2>
 bool AVLTree<dataType1, dataType2>::nodeExists(dataType1 key)
 {
@@ -72,6 +101,13 @@ bool AVLTree<dataType1, dataType2>::nodeExists(dataType1 key)
     return false;
 }
 
+/*
+ *  isTreeEmpty: Check whether the tree is empty or not
+ *
+ * @return
+ * 	true - The tree is empty
+ *  false - The tree is not empty
+ */
 template <class dataType1, class dataType2>
 bool AVLTree<dataType1, dataType2>::isTreeEmpty()
 {
@@ -80,6 +116,15 @@ bool AVLTree<dataType1, dataType2>::isTreeEmpty()
     return false;
 }
 
+/*
+ *  insert: Inserts a new node with given key and data
+ *
+ * @param key - The unique key of the node
+ * @param data - The data of the node
+ * @return
+ * 	true - The new node was added
+ *  false - The new node was not added, perhaps it already existed
+ */
 template <class dataType1, class dataType2>
 bool AVLTree<dataType1, dataType2>::insert(dataType1 key, dataType2 data)
 {
@@ -124,6 +169,14 @@ bool AVLTree<dataType1, dataType2>::insert(dataType1 key, dataType2 data)
     return true;
 }
 
+/*
+ *  remove: Removes a node with a given key
+ *
+ * @param key - The unique key of the node
+ * @return
+ * 	true - Managed to remove the node
+ *  false - Did not manage to remove the node, perhaps it did not exist
+ */
 template <class dataType1, class dataType2>
 bool AVLTree<dataType1, dataType2>::remove(dataType1 key)
 {
@@ -173,6 +226,14 @@ bool AVLTree<dataType1, dataType2>::remove(dataType1 key)
     return true;
 }
 
+/*
+ *  removeLeaf: Removes a node of type leaf
+ *
+ * @param target - A pointer to the node to be deleted
+ * @return
+ * 	true - Managed to remove the node
+ *  false - Did not manage to remove the node, perhaps it did not exist
+ */
 template <class dataType1, class dataType2>
 bool AVLTree<dataType1, dataType2>::removeLeaf(AVLNode<dataType1, dataType2> *target)
 {
@@ -207,6 +268,14 @@ bool AVLTree<dataType1, dataType2>::removeLeaf(AVLNode<dataType1, dataType2> *ta
     return true;
 }
 
+/*
+ *  removeSingleChild: Removes a node that has only a single child
+ *
+ * @param target - A pointer to the node to be deleted
+ * @return
+ * 	true - Managed to remove the node
+ *  false - Did not manage to remove the node, perhaps it did not exist
+ */
 template <class dataType1, class dataType2>
 bool AVLTree<dataType1, dataType2>::removeSingleChild(AVLNode<dataType1, dataType2> *target)
 {
@@ -292,6 +361,13 @@ bool AVLTree<dataType1, dataType2>::removeSingleChild(AVLNode<dataType1, dataTyp
     return true;
 }
 
+/*
+ *  findNextNode: Finds the next node, the one that is the least greater than the current node
+ *
+ * @param node - The node that we have to find its neighboor
+ * @return
+ * 	AVLNode* - The next node in the tree
+ */
 template <class dataType1, class dataType2>
 AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::findNextNode(AVLNode<dataType1, dataType2> *node)
 {
@@ -303,6 +379,12 @@ AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::findNextNode(AVLNo
     return node;
 }
 
+/*
+ *  swapTwoNodes: Swaps two nodes
+ *
+ * @param v1 - The first node
+ * @param v2 - The second node
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::swapTwoNodes(AVLNode<dataType1, dataType2> *v1, AVLNode<dataType1, dataType2> *v2)
 {
@@ -321,6 +403,13 @@ void AVLTree<dataType1, dataType2>::swapTwoNodes(AVLNode<dataType1, dataType2> *
     v2->data = data1;
 }
 
+/*
+ *  insertLeftNaive: Insert a new node as a left child of target with given key and data
+ *
+ * @param target - The node to connect the new node to from the left
+ * @param key - The unique key to the new node
+ * @param data - The data of the new node
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::insertLeftNaive(AVLNode<dataType1, dataType2> *target, dataType1 key, dataType2 data)
 {
@@ -330,6 +419,13 @@ void AVLTree<dataType1, dataType2>::insertLeftNaive(AVLNode<dataType1, dataType2
     target->leftNode = newNode;
 }
 
+/*
+ *  insertLeftNaive: Insert a new node as a left child of target with given key and data
+ *
+ * @param target - The node to connect the new node to from the left
+ * @param key - The unique key to the new node
+ * @param data - The data of the new node
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::insertRightNaive(AVLNode<dataType1, dataType2> *target, dataType1 key, dataType2 data)
 {
@@ -339,6 +435,12 @@ void AVLTree<dataType1, dataType2>::insertRightNaive(AVLNode<dataType1, dataType
     target->rightNode = newNode;
 }
 
+/*
+ *  updateNodeParameters: Update the parameters of the node,
+ *                         Such as height, heightLeft, heightRight, BF and so on.
+ *
+ * @param target - The node to update its parameters
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::updateNodeParameters(AVLNode<dataType1, dataType2> *target)
 {
@@ -377,6 +479,11 @@ void AVLTree<dataType1, dataType2>::updateNodeParameters(AVLNode<dataType1, data
     target->balanceFactor = target->heightLeft - target->heightRight;
 }
 
+/*
+ *  rollRight: Roll to the right (as seen in the recitation)
+ *
+ * @param node - The node to roll from
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::rollRight(AVLNode<dataType1, dataType2> *node)
 {
@@ -425,6 +532,11 @@ void AVLTree<dataType1, dataType2>::rollRight(AVLNode<dataType1, dataType2> *nod
     temp->parentNode = parent;
 }
 
+/*
+ *  rollLeft: Roll to the left (as seen in the recitation)
+ *
+ * @param node - The node to roll from
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::rollLeft(AVLNode<dataType1, dataType2> *node)
 {
@@ -473,6 +585,11 @@ void AVLTree<dataType1, dataType2>::rollLeft(AVLNode<dataType1, dataType2> *node
     temp->parentNode = parent;
 }
 
+/*
+ *  rollNode: Find the correct roll needed to fix the tree so that it remains balanced
+ *
+ * @param node - The node to roll from
+ */
 template <class dataType1, class dataType2>
 bool AVLTree<dataType1, dataType2>::rollNode(AVLNode<dataType1, dataType2> *node)
 {
@@ -525,6 +642,12 @@ bool AVLTree<dataType1, dataType2>::rollNode(AVLNode<dataType1, dataType2> *node
     return true;
 }
 
+/*
+ *  initNewNode: Create a new node with given key and data
+ *
+ * @param key - The unique key to the new node
+ * @param data - The data to the new node
+ */
 template <class dataType1, class dataType2>
 AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::initNewNode(dataType1 key, dataType2 data)
 {
@@ -546,12 +669,22 @@ AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::initNewNode(dataTy
     return node;
 }
 
+/*
+ *  printInOrder: Print the tree inOrder - just wrapper function
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::printInOrder()
 {
     printInOrderAux(root);
 }
 
+/*
+ *   getRightMostNode: Get the right most node
+ *
+ * @return
+ *   nullptr - If the tree is empty
+ *   dataType2* - A pointer to the right most node
+ */
 template <class dataType1, class dataType2>
 dataType2 *AVLTree<dataType1, dataType2>::getRightMostNode()
 {
@@ -563,6 +696,13 @@ dataType2 *AVLTree<dataType1, dataType2>::getRightMostNode()
     return &temp->data;
 }
 
+/*
+ *   getRightMostNode: Get the left most node
+ *
+ * @return
+ *   nullptr - If the tree is empty
+ *   dataType2* - A pointer to the left most node
+ */
 template <class dataType1, class dataType2>
 dataType2 *AVLTree<dataType1, dataType2>::getLeftMostNode()
 {
@@ -572,6 +712,11 @@ dataType2 *AVLTree<dataType1, dataType2>::getLeftMostNode()
     return &temp->data;
 }
 
+/*
+ *   printInOrderAux: Print inOrder - an auxiliary
+ *
+ * @param node - The node to print from
+ */
 template <class dataType1, class dataType2>
 void AVLTree<dataType1, dataType2>::printInOrderAux(AVLNode<dataType1, dataType2> *node)
 {
@@ -581,11 +726,6 @@ void AVLTree<dataType1, dataType2>::printInOrderAux(AVLNode<dataType1, dataType2
     printInOrderAux(node->leftNode);
     std::cout << node->key << std::endl;
     printInOrderAux(node->rightNode);
-}
-
-template<class dataType1, class dataType2>
-int AVLTree<dataType1, dataType2>::getTreeSize() {
-    return treeSize;
 }
 
 template class AVLTree<int, Country>;
