@@ -13,6 +13,7 @@
 #include "Olympicsa1.h"
 #include <iostream>
 #include <string>
+#include "wet1util.h"
 
 using namespace std;
 
@@ -31,21 +32,21 @@ int main()
 
     // Add country
     obj->add_country(1, 10);
-    obj->add_team(1, 1, (Sport)0);
-    obj->add_contestant(1, 1, (Sport)0, 2);
-    obj->add_contestant(4, 1, (Sport)0, 5);
-    obj->add_contestant(6, 1, (Sport)0, 3);
-    obj->add_contestant(10, 1, (Sport)0, 10);
-    obj->add_contestant(16, 1, (Sport)0, 11);
-    obj->add_contestant(20, 1, (Sport)0, 15);
-    obj->add_contestant(100, 1, (Sport)0, 7);
-    obj->add_contestant(101, 1, (Sport)0, 6);
-    obj->add_contestant(102, 1, (Sport)0, 4);
+    obj->add_team(1, 1, Sport::BOULDERING);
+    obj->add_contestant(1, 1, Sport::BOULDERING, 2);
+    obj->add_contestant(4, 1, Sport::BOULDERING, 5);
+    obj->add_contestant(6, 1, Sport::BOULDERING, 3);
+    obj->add_contestant(10, 1, Sport::BOULDERING, 10);
+    obj->add_contestant(16, 1, Sport::BOULDERING, 11);
+    obj->add_contestant(20, 1, Sport::BOULDERING, 15);
+    obj->add_contestant(100, 1, Sport::BOULDERING, 7);
+    obj->add_contestant(101, 1, Sport::BOULDERING, 6);
+    obj->add_contestant(102, 1, Sport::BOULDERING, 4);
 
     obj->add_contestant_to_team(1, 4);
-    // obj->add_contestant_to_team(1, 101);
-    // obj->add_contestant_to_team(1, 100);
-    // obj->add_contestant_to_team(1, 102);
+    obj->add_contestant_to_team(1, 101);
+    obj->add_contestant_to_team(1, 100);
+    obj->add_contestant_to_team(1, 102);
     obj->add_contestant_to_team(1, 16);
     obj->add_contestant_to_team(1, 10);
     obj->add_contestant_to_team(1, 20);
@@ -54,6 +55,7 @@ int main()
 
     Team t = obj->get_team(1);
     t.printCurrentStrengths();
+    // t.printCurrentContestants();
     print("get_team_strength", obj->get_team_strength(1));
     print("austerity_measures", obj->austerity_measures(1));
     // Execute all commands in file

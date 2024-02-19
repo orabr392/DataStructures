@@ -11,13 +11,31 @@ Contestant::Contestant()
  *   Contestant: A non empty Constructor
  *
  */
-Contestant::Contestant(int contestantId, int countryId, Sport sport, int strength, Country *country) : contestantId(contestantId), countryId(countryId), strength(strength), country(country)
+Contestant::Contestant(int contestantId, int countryId, Sport sport, int strength, Country *country)
 {
-    sport = sport;
-    teamsCounter = 0;
+    this->contestantId = contestantId;
+    this->countryId = countryId;
+    this->sport = sport;
+    this->strength = strength;
+    this->country = country;
+    this->teamsCounter = 0;
     for (int i = 0; i < TEAMSCAP; i++)
     {
-        teamsId[i] = 0;
+        this->teamsId[i] = 0;
+    }
+}
+
+Contestant::Contestant(Contestant &contestant)
+{
+    this->contestantId = contestant.contestantId;
+    this->countryId = contestant.countryId;
+    this->sport = contestant.sport;
+    this->strength = contestant.strength;
+    this->country = contestant.country;
+    this->teamsCounter = 0;
+    for (int i = 0; i < TEAMSCAP; i++)
+    {
+        this->teamsId[i] = 0;
     }
 }
 

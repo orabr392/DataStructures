@@ -693,7 +693,7 @@ dataType2 *AVLTree<dataType1, dataType2>::getRightMostNode()
         return nullptr;
     while (temp->rightNode != nullptr)
         temp = temp->rightNode;
-    return &temp->data;
+    return new dataType2(temp->data);
 }
 
 /*
@@ -711,7 +711,7 @@ dataType2 *AVLTree<dataType1, dataType2>::getLeftMostNode()
         return nullptr;
     while (temp->leftNode != nullptr)
         temp = temp->leftNode;
-    return &temp->data;
+    return new dataType2(temp->data);
 }
 
 /*
