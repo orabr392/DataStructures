@@ -161,9 +161,11 @@ StatusType Olympics::remove_contestant_from_team(int teamId, int contestantId)
 		!contestantsTree.search(contestantId)->data.isContestantOnTeam(teamId))
 		return StatusType::FAILURE;
 	Contestant *contestant = &contestantsTree.search(contestantId)->data;
-	if (!teamsTree.search(teamId)->data.removeContestantFromTeam(*contestant) ||
+    Team *team = &teamsTree.search(teamId)->data;
+	if (!team->removeContestantFromTeam(*contestant) ||
 		!contestant->leaveTeam(teamId))
 		return StatusType::ALLOCATION_ERROR;
+    teamsTree.search(teamId)->data.calcMaxPossibleStrength();
 	return StatusType::SUCCESS;
 }
 
@@ -300,17 +302,17 @@ StatusType Olympics::play_match(int teamId1, int teamId2)
 		return StatusType::INVALID_INPUT;
 	if (!teamsTree.nodeExists(teamId1) || !teamsTree.nodeExists(teamId2))
 		return StatusType::FAILURE;
-	Team team1 = teamsTree.search(teamId1)->data;
-	Team team2 = teamsTree.search(teamId2)->data;
-	if (team1.getSport() != team2.getSport())
+	Team *team1 = &teamsTree.search(teamId1)->data;
+	Team *team2 = &teamsTree.search(teamId2)->data;
+	if (team1->getSport() != team2->getSport())
 		return StatusType::FAILURE;
-	Country country1 = countriesTree.search(team1.getCountryId())->data;
-	Country country2 = countriesTree.search(team2.getCountryId())->data;
-	int score1 = country1.getMedals() + team1.getTeamStrength(), score2 = country2.getMedals() + team2.getTeamStrength();
+	Country *country1 = &countriesTree.search(team1->getCountryId())->data;
+	Country *country2 = &countriesTree.search(team2->getCountryId())->data;
+	int score1 = country1->getMedals() + team1->getTeamStrength(), score2 = country2->getMedals() + team2->getTeamStrength();
 	if (score1 > score2)
-		country1.addMedal();
+		country1->addMedal();
 	else if (score1 < score2)
-		country2.getMedals();
+		country2->addMedal();
 	return StatusType::SUCCESS;
 }
 
@@ -321,8 +323,6 @@ output_t<int> Olympics::austerity_measures(int teamId)
 	if (!teamsTree.nodeExists(teamId))
 		return output_t<int>(StatusType::FAILURE);
 	Team *team = &teamsTree.search(teamId)->data;
-	// team->calcMaxPossibleStrength();
-	if (team->getCurrentCapacity() < 3)
 		return output_t<int>(StatusType::FAILURE);
 	return output_t<int>(team->getMaxStrength());
 }
