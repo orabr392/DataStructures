@@ -27,7 +27,7 @@ private:
     AVLTree<TwoKeysInt, Contestant> strengthsTrees[PARTITIONS];
     void insertIntoPartition(Contestant contestant, int partition);
     void removeContestantFromPartition(Contestant contestant, int partition);
-    Contestant removeFromPartition(int partition, bool leftMostEnd);
+    Contestant *removeFromPartition(int partition, bool leftMostEnd);
     void leftShift(int partition);
     void rightShift(int partition);
     void swapBetweenPartitions(int partition);

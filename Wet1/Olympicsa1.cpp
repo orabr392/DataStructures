@@ -573,11 +573,14 @@ output_t<int> Olympics::austerity_measures(int teamId)
 	if (!teamsTree.nodeExists(teamId))
 		return output_t<int>(StatusType::FAILURE);
 	Team *team = &teamsTree.search(teamId)->data;
+    if (team->getCurrentCapacity() < 3)
+    {
 		return output_t<int>(StatusType::FAILURE);
+    }
 	return output_t<int>(team->getMaxStrength());
 }
 
-Team Olympics::get_team(int teamId)
+Team* Olympics::get_team(int teamId)
 {
-	return teamsTree.search(teamId)->data;
+	return &teamsTree.search(teamId)->data;
 }
