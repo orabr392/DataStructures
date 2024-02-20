@@ -354,3 +354,15 @@ void Team::calcMaxPossibleStrength()
     updateStrength();
     maxPossibleStrength = maxValueReached;
 }
+
+void Team::setIndicesTrees(AVLTree<int, Contestant> tree, int i) {
+    if(i < 0 || i >= PARTITIONS)
+        return;
+    indicesTrees[i] = tree;
+}
+
+void Team::setStrengthTrees(AVLTree<TwoKeysInt, Contestant> tree, int i) {
+    if(i < 0 || i >= PARTITIONS)
+        return;
+    strengthsTrees[i] = tree;
+}

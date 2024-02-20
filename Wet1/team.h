@@ -31,7 +31,6 @@ private:
     void leftShift(int partition);
     void rightShift(int partition);
     void swapBetweenPartitions(int partition);
-    void updateStrength();
 
 public:
     Team();
@@ -49,6 +48,9 @@ public:
     AVLTree<TwoKeysInt, Contestant> *getStrengthsTrees();
     int getCurrentCapacity();
     int getMaxStrength();
+    void setIndicesTrees(AVLTree<int, Contestant> tree, int i);
+    void setStrengthTrees(AVLTree<TwoKeysInt, Contestant> tree, int i);
+    void updateStrength();
     // TEMPORARY FOR TESTING:
 
     void printCurrentContestants();

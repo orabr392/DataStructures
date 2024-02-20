@@ -15,6 +15,15 @@ AVLTree<dataType1, dataType2>::AVLTree()
 }
 
 /*
+ * Constructor with arguments
+ */
+template<class dataType1, class dataType2>
+AVLTree<dataType1, dataType2>::AVLTree(AVLNode<dataType1, dataType2> *newRoot, int size) {
+    root = newRoot;
+    treeSize = size;
+}
+
+/*
  *   ~AVLTree(): Destructor
  */
 template <class dataType1, class dataType2>
@@ -840,32 +849,30 @@ AVLNode<dataType1, dataType2> *AVLTree<dataType1, dataType2>::createEmptyTree(in
 
 /*
  * Remove the leafs from the complete tree, so it will be nearly complete, using Inorder traversal
- * THIS FUNCTION ASSUMES A DEFAULT KEY VALUE FOR EMPTY NODES
- * @param tree - the tree to adjust its size
  * @param root - the current node that is being worked on
  * @param toDelete - the amount of nodes to remove
  * @return
  *          void
  */
 template <typename dataType1, typename dataType2>
-void AVLTree<dataType1, dataType2>::adjustTreeSize(AVLTree<dataType1, dataType2> &tree, AVLNode<dataType1, dataType2> *root, int *toDelete)
+void AVLTree<dataType1, dataType2>::adjustTreeSize(AVLNode<dataType1, dataType2> *root, int *toDelete)
 {
-    if (root == nullptr || *toDelete == 0)
+    if (root == nullptr || *toDelete <= 0)
         return;
-    adjustTreeSize(tree, root->rightNode, toDelete);
+    adjustTreeSize(root->rightNode, toDelete);
     if (root->rightNode == nullptr && root->leftNode == nullptr)
     {
         AVLNode<dataType1, dataType2>* temp = root;
-        if(root->parentNode->rightNode == root){
+        if(root->parentNode != nullptr && root->parentNode->rightNode == root){
             root->parentNode->rightNode = nullptr;
-        } else if(root->parentNode->leftNode == root){
+        } else if(root->parentNode != nullptr && root->parentNode->leftNode == root){
             root->parentNode->leftNode = nullptr;
         }
         delete temp;
         (*toDelete)--;
     }
     else
-        adjustTreeSize(tree, root->leftNode, toDelete);
+        adjustTreeSize(root->leftNode, toDelete);
 }
 template class AVLTree<int, Country>;
 template class AVLTree<int, Team>;

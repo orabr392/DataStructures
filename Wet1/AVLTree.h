@@ -26,6 +26,7 @@ private:
 
 public:
     AVLTree();
+    AVLTree(AVLNode<dataType1,dataType2>* newRoot, int size);
     ~AVLTree();
     AVLNode<dataType1, dataType2> *search(dataType1 key);
     bool nodeExists(dataType1 key);
@@ -40,7 +41,7 @@ public:
     static int inorderToTree(AVLNode<dataType1, dataType2> *root, AVLNode<dataType1, dataType2> *arr, int arrSize, int i);
     static void combineAVLTrees(AVLTree<dataType1, dataType2> &newTree, AVLTree<dataType1, dataType2> &tree1, AVLTree<dataType1, dataType2> &tree2);
     static AVLNode<dataType1, dataType2> *createEmptyTree(int height);
-    static void adjustTreeSize(AVLTree<dataType1, dataType2> &tree, AVLNode<dataType1, dataType2> *root, int *toDelete);
+    static void adjustTreeSize(AVLNode<dataType1, dataType2> *root, int *toDelete);
     AVLNode<dataType1, dataType2> *getRoot() const
     {
         return root;

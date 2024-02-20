@@ -20,8 +20,8 @@ public:
 
     AVLNode *parentNode;
 
-    AVLNode();
-    AVLNode<dataType1,dataType2>& operator=(const AVLNode<dataType1,dataType2>& other);
+    AVLNode() = default;
+//    AVLNode<dataType1,dataType2>& operator=(const AVLNode<dataType1,dataType2>& other);
 };
 
 #endif
