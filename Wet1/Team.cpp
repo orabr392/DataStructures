@@ -121,7 +121,7 @@ bool Team::removeContestantFromTeam(Contestant contestant)
     int partition;
     for (int i = 0; i < PARTITIONS; i++)
     {
-        if (indicesTrees->nodeExists(contestant.getContestantId()))
+        if (indicesTrees[i].nodeExists(contestant.getContestantId()))
         {
             partition = i;
             break;
@@ -198,8 +198,9 @@ bool Team::removeContestantFromTeam(Contestant contestant)
  */
 void Team::leftShift(int partition)
 {
+    Contestant contestant;
     int nextPartition = partition - 1;
-    Contestant contestant = removeFromPartition(partition, LEFTMOSTNODE);
+    contestant = removeFromPartition(partition, LEFTMOSTNODE);
     insertIntoPartition(contestant, nextPartition);
 }
 
@@ -208,8 +209,9 @@ void Team::leftShift(int partition)
  */
 void Team::rightShift(int partition)
 {
+    Contestant contestant;
     int nextPartition = partition + 1;
-    Contestant contestant = removeFromPartition(partition, RIGHTMOSTNODE);
+    contestant = removeFromPartition(partition, RIGHTMOSTNODE);
     insertIntoPartition(contestant, nextPartition);
 }
 
@@ -221,10 +223,14 @@ void Team::swapBetweenPartitions(int partition)
         return;
     if (contestant1->getContestantId() > contestant2->getContestantId())
     {
-        Contestant c1 = removeFromPartition(partition, RIGHTMOSTNODE);
-        Contestant c2 = removeFromPartition(partition + 1, LEFTMOSTNODE);
-        insertIntoPartition(c2, partition);
-        insertIntoPartition(c1, partition + 1);
+        // removeContestantFromTeamWithoutShifting(*contestant1);
+        // removeContestantFromTeamWihtoutShifting(*contestant2);
+        // removeFromPartition(partition, RIGHTMOSTNODE);
+        // removeFromPartition(partition + 1, LEFTMOSTNODE);
+        removeContestantFromPartition(*contestant1, partition);
+        removeContestantFromPartition(*contestant2, partition + 1);
+        insertIntoPartition(*contestant2, partition);
+        insertIntoPartition(*contestant1, partition + 1);
     }
 }
 
@@ -326,30 +332,30 @@ void Team::calcMaxPossibleStrength()
     for (int i = 0; i < PARTITIONS; i++)
     {
 
-        if (indicesTrees[i].getLeftMostNode() == nullptr)
+        if (strengthsTrees[i].getLeftMostNode() == nullptr)
             continue;
-        Contestant minStrengthCont = *(strengthsTrees[i].getLeftMostNode());
-        removeContestantFromTeam(minStrengthCont);
+        Contestant *minStrengthCont = strengthsTrees[i].getLeftMostNode();
+        removeContestantFromTeam(*minStrengthCont);
         for (int j = i; j < PARTITIONS; j++)
         {
-            if (indicesTrees[j].getLeftMostNode() == nullptr)
+            if (strengthsTrees[j].getLeftMostNode() == nullptr)
                 continue;
-            Contestant secMinStrengthCont = *(strengthsTrees[j].getLeftMostNode());
-            removeContestantFromTeam(secMinStrengthCont);
+            Contestant *secMinStrengthCont = strengthsTrees[j].getLeftMostNode();
+            removeContestantFromTeam(*secMinStrengthCont);
             for (int k = j; k < PARTITIONS; k++)
             {
-                if (indicesTrees[k].getLeftMostNode() == nullptr)
+                if (strengthsTrees[k].getLeftMostNode() == nullptr)
                     continue;
-                Contestant thirdMinStrengthCont = *(strengthsTrees[k].getLeftMostNode());
-                removeContestantFromTeam(thirdMinStrengthCont);
+                Contestant *thirdMinStrengthCont = strengthsTrees[k].getLeftMostNode();
+                removeContestantFromTeam(*thirdMinStrengthCont);
                 updateStrength();
                 if (strength > maxValueReached)
                     maxValueReached = strength;
-                insertContestantToTeam(thirdMinStrengthCont);
+                insertContestantToTeam(*thirdMinStrengthCont);
             }
-            insertContestantToTeam(secMinStrengthCont);
+            insertContestantToTeam(*secMinStrengthCont);
         }
-        insertContestantToTeam(minStrengthCont);
+        insertContestantToTeam(*minStrengthCont);
     }
     updateStrength();
     maxPossibleStrength = maxValueReached;

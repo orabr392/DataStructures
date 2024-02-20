@@ -20,6 +20,7 @@ private:
 public:
     Contestant();
     Contestant(int contestantId, int countryId, Sport sport, int strength, Country *country);
+    Contestant(Contestant &contestant);
     ~Contestant() = default;
     bool isContestantActive();
     bool insertTeam(int teamId);
