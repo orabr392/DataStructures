@@ -168,7 +168,7 @@ StatusType Olympics::remove_contestant_from_team(int teamId, int contestantId)
 	if (!team->removeContestantFromTeam(*contestant) ||
 		!contestant->leaveTeam(teamId))
 		return StatusType::ALLOCATION_ERROR;
-    teamsTree.search(teamId)->data.calcMaxPossibleStrength();
+    team->calcMaxPossibleStrength();
 	return StatusType::SUCCESS;
 }
 
