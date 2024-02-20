@@ -25,12 +25,11 @@
 
 class Olympics
 {
-private:
+public:
 	AVLTree<int, Country> countriesTree;
 	AVLTree<int, Team> teamsTree;
 	AVLTree<int, Contestant> contestantsTree;
 
-public:
 	// <DO-NOT-MODIFY> {
 
 	Olympics();
@@ -69,7 +68,6 @@ public:
 
 	// TEMPORARY FOR TESTING:
 
-	Team get_team(int teamId);
     AVLTree<int, Country>* getCountriesTree(){
         return &countriesTree;
     }
@@ -79,6 +77,7 @@ public:
     AVLTree<int, Team>* getTeamsTree(){
         return &teamsTree;
     }
+	Team* get_team(int teamId);
 
 	// } </DO-NOT-MODIFY>
 };

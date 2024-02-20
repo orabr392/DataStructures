@@ -7,7 +7,7 @@
 template <class dataType1, class dataType2>
 class AVLTree
 {
-private:
+public:
     AVLNode<dataType1, dataType2> *root;
     int treeSize;
     AVLNode<dataType1, dataType2> *initNewNode(dataType1 key, dataType2 data);
@@ -24,7 +24,6 @@ private:
     void swapTwoNodes(AVLNode<dataType1, dataType2> *v1, AVLNode<dataType1, dataType2> *v2);
     AVLNode<dataType1, dataType2> *findNextNode(AVLNode<dataType1, dataType2> *node);
 
-public:
     AVLTree();
     AVLTree(AVLNode<dataType1,dataType2>* newRoot, int size);
     ~AVLTree();
