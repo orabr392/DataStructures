@@ -2,9 +2,6 @@
 #define TEAM_H_
 
 #include "AVLTree.h"
-#include "Contestant.h"
-#include "Country.h"
-#include "TwoKeysInt.h"
 #include "wet1util.h"
 
 #define PARTITIONS 3
@@ -12,6 +9,10 @@
 #define RIGHTMOSTNODE 1
 #define LEFTMOSTNODE 0
 
+// Forward declaration
+class Contestant;
+class TwoKeysInt;
+class Country;
 class Team
 {
 private:
@@ -22,6 +23,7 @@ private:
     int maxPossibleStrength;
     int currentCapacity;
     Country *country;
+    int indicesRanges[3][2];
     int capacityInSubTree[PARTITIONS];
     AVLTree<int, Contestant> indicesTrees[PARTITIONS];
     AVLTree<TwoKeysInt, Contestant> strengthsTrees[PARTITIONS];
@@ -42,15 +44,19 @@ public:
     int getCountryId();
     bool insertContestantToTeam(Contestant contestant);
     bool removeContestantFromTeam(Contestant contestant);
+    int whichPartitionContestantBelongs(int contestantId);
     void calcMaxPossibleStrength();
+    void updateIndicesRanges();
     Sport getSport();
     AVLTree<int, Contestant> *getIndicesTrees();
     AVLTree<TwoKeysInt, Contestant> *getStrengthsTrees();
     int getCurrentCapacity();
+    int getCapacityInSubTree(int partition);
     int getMaxStrength();
-    void setIndicesTrees(AVLTree<int, Contestant> tree, int i);
-    void setStrengthTrees(AVLTree<TwoKeysInt, Contestant> tree, int i);
+    void setIndicesTrees(AVLNode<int, Contestant> *root, int treeSize, int i);
+    void setStrengthTrees(AVLNode<TwoKeysInt, Contestant> *root, int treeSize, int i);
     void updateStrength();
+    void setCurrentCapacity(int capacity);
     // TEMPORARY FOR TESTING:
 
     void printCurrentContestants();

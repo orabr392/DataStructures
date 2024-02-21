@@ -3,9 +3,10 @@
 
 #define TEAMSCAP 3
 
-#include "Country.h"
 #include "wet1util.h"
 
+// Forward declaration
+class Country;
 class Contestant
 {
 private:

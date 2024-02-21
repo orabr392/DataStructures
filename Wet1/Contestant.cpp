@@ -1,4 +1,5 @@
 #include "Contestant.h"
+#include "Country.h"
 
 /**
  *   Contestant: Empty Constructor

@@ -1,4 +1,7 @@
 #include "Team.h"
+#include "Contestant.h"
+#include "Country.h"
+#include "TwoKeysInt.h"
 
 /*
  *   Team: Empty Constructor
@@ -16,6 +19,13 @@ Team::Team(int teamId, int countryId, Sport sport, Country *country) : teamId(te
     for (int i = 0; i < PARTITIONS; i++)
     {
         capacityInSubTree[i] = 0;
+    }
+    for (int i = 0; i < PARTITIONS; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            indicesRanges[i][j] = 0;
+        }
     }
 }
 
@@ -116,6 +126,7 @@ bool Team::insertContestantToTeam(Contestant contestant)
     // Check if needs to swap rightMostNode in bucket 0 and leftMostNode in bucket 1
     swapBetweenPartitions(0);
     swapBetweenPartitions(1);
+    updateIndicesRanges();
     updateStrength();
     return true;
 }
@@ -194,6 +205,7 @@ bool Team::removeContestantFromTeam(Contestant contestant)
         {
         }
     }
+    updateIndicesRanges();
     updateStrength();
     return true;
 }
@@ -238,7 +250,7 @@ void Team::swapBetweenPartitions(int partition)
     Contestant *contestant2 = indicesTrees[partition + 1].getLeftMostNode();
     if (contestant1 == nullptr || contestant2 == nullptr)
         return;
-    if (contestant1->getContestantId() > contestant2->getContestantId())
+    else if (contestant1->getContestantId() > contestant2->getContestantId())
     {
         contestant1 = new Contestant(*contestant1);
         contestant2 = new Contestant(*contestant2);
@@ -248,7 +260,7 @@ void Team::swapBetweenPartitions(int partition)
         insertIntoPartition(*contestant2, partition);
         insertIntoPartition(*contestant1, partition + 1);
 
-        if(contestant1== nullptr || contestant2 == nullptr)
+        if (contestant1 == nullptr || contestant2 == nullptr)
         {
             std::cout << "Hey" << std::endl;
         }
@@ -298,9 +310,41 @@ void Team::updateStrength()
     }
 }
 
+void Team::updateIndicesRanges()
+{
+    for (int i = 0; i < PARTITIONS; i++)
+    {
+        Contestant *leftMostNode = indicesTrees[i].getLeftMostNode();
+        Contestant *rightMostNode = indicesTrees[i].getRightMostNode();
+        if (leftMostNode != nullptr)
+        {
+            indicesRanges[i][0] = leftMostNode->getContestantId();
+        }
+        if (rightMostNode != nullptr)
+        {
+            indicesRanges[i][1] = rightMostNode->getContestantId();
+        }
+    }
+}
+
+int Team::whichPartitionContestantBelongs(int contestantId)
+{
+    for (int i = 0; i < PARTITIONS; i++)
+    {
+        if (contestantId >= indicesRanges[i][0] && contestantId <= indicesRanges[i][1])
+            return i;
+    }
+    return -1;
+}
+
 int Team::getTeamStrength()
 {
     return strength;
+}
+
+int Team::getCapacityInSubTree(int partition)
+{
+    return capacityInSubTree[partition];
 }
 
 void Team::printCurrentContestants()
@@ -392,14 +436,24 @@ void Team::calcMaxPossibleStrength()
     maxPossibleStrength = maxValueReached;
 }
 
-void Team::setIndicesTrees(AVLTree<int, Contestant> tree, int i) {
-    if(i < 0 || i >= PARTITIONS)
+void Team::setIndicesTrees(AVLNode<int, Contestant> *root, int treeSize, int i)
+{
+    if (i < 0 || i >= PARTITIONS)
         return;
-    indicesTrees[i] = tree;
+    indicesTrees[i].root = root;
+    indicesTrees[i].treeSize = treeSize;
+    capacityInSubTree[i] = treeSize;
 }
 
-void Team::setStrengthTrees(AVLTree<TwoKeysInt, Contestant> tree, int i) {
-    if(i < 0 || i >= PARTITIONS)
+void Team::setStrengthTrees(AVLNode<TwoKeysInt, Contestant> *root, int treeSize, int i)
+{
+    if (i < 0 || i >= PARTITIONS)
         return;
-    strengthsTrees[i] = tree;
+    strengthsTrees[i].root = root;
+    strengthsTrees[i].treeSize = treeSize;
+}
+
+void Team::setCurrentCapacity(int capacity)
+{
+    currentCapacity = capacity;
 }

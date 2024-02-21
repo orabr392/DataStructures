@@ -33,6 +33,7 @@ int main()
     // Add country
     obj->add_country(1, 10);
     obj->add_team(1, 1, Sport::BOULDERING);
+    obj->add_team(2, 1, Sport::BOULDERING);
     obj->add_contestant(1, 1, Sport::BOULDERING, 2);
     obj->add_contestant(4, 1, Sport::BOULDERING, 5);
     obj->add_contestant(6, 1, Sport::BOULDERING, 3);
@@ -43,22 +44,35 @@ int main()
     obj->add_contestant(101, 1, Sport::BOULDERING, 6);
     obj->add_contestant(102, 1, Sport::BOULDERING, 4);
 
-    obj->add_contestant_to_team(1, 4);
-    obj->add_contestant_to_team(1, 101);
-    obj->add_contestant_to_team(1, 100);
-    obj->add_contestant_to_team(1, 102);
-    obj->add_contestant_to_team(1, 16);
-    obj->add_contestant_to_team(1, 10);
-    obj->add_contestant_to_team(1, 20);
     obj->add_contestant_to_team(1, 1);
+    obj->add_contestant_to_team(1, 4);
     obj->add_contestant_to_team(1, 6);
+    // obj->add_contestant_to_team(1, 16);
+    // obj->add_contestant_to_team(1, 10);
+    // obj->add_contestant_to_team(1, 20);
+    // obj->add_contestant_to_team(2, 101);
+    // obj->add_contestant_to_team(2, 100);
+    // obj->add_contestant_to_team(2, 102);
+
+    // // t->printCurrentStrengths();
+    // // // t.printCurrentContestants();
+    // print("get_team_strength", obj->get_team_strength(1));
+    // print("austerity_measures", obj->austerity_measures(1));
+
+    // print("get_team_strength", obj->get_team_strength(2));
+    // print("austerity_measures", obj->austerity_measures(2));
+
+    obj->unite_teams(1, 2);
+
+    // print("get_team_strength", obj->get_team_strength(1));
+    // print("austerity_measures", obj->austerity_measures(1));
 
     Team *t = obj->get_team(1);
+    t->printCurrentContestants();
+    // std::cout << std::endl;
     t->printCurrentStrengths();
-    // // t.printCurrentContestants();
-    print("get_team_strength", obj->get_team_strength(1));
-    print("austerity_measures", obj->austerity_measures(1));
-    // Execute all commands in file
+
+    //// Execute all commands in file
     // string op;
     // while (cin >> op)
     // {
@@ -150,7 +164,7 @@ int main()
     //     }
     // }
 
-    // // Quit
+    // Quit
     delete obj;
     return 0;
 }
