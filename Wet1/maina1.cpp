@@ -11,9 +11,9 @@
 //
 
 #include "Olympicsa1.h"
+#include "wet1util.h"
 #include <iostream>
 #include <string>
-#include "wet1util.h"
 
 using namespace std;
 
@@ -37,9 +37,9 @@ int main()
     obj->add_contestant(1, 1, Sport::BOULDERING, 2);
     obj->add_contestant(4, 1, Sport::BOULDERING, 5);
     obj->add_contestant(6, 1, Sport::BOULDERING, 3);
-    // obj->add_contestant(10, 1, Sport::BOULDERING, 10);
+    obj->add_contestant(10, 1, Sport::BOULDERING, 10);
     // obj->add_contestant(16, 1, Sport::BOULDERING, 11);
-    // obj->add_contestant(20, 1, Sport::BOULDERING, 15);
+    obj->add_contestant(20, 1, Sport::BOULDERING, 15);
     obj->add_contestant(100, 1, Sport::BOULDERING, 7);
     obj->add_contestant(101, 1, Sport::BOULDERING, 6);
     obj->add_contestant(102, 1, Sport::BOULDERING, 4);
@@ -50,29 +50,39 @@ int main()
     // obj->add_contestant_to_team(1, 16);
     // obj->add_contestant_to_team(1, 10);
     // obj->add_contestant_to_team(1, 20);
-    obj->add_contestant_to_team(2, 101);
+    obj->add_contestant_to_team(2, 6);
     obj->add_contestant_to_team(2, 100);
-    obj->add_contestant_to_team(2, 102);
+    obj->add_contestant_to_team(2, 4);
 
     // // t->printCurrentStrengths();
     // // // t.printCurrentContestants();
-    // print("get_team_strength", obj->get_team_strength(1));
-    // print("austerity_measures", obj->austerity_measures(1));
+    print("get_team_strength", obj->get_team_strength(1));
+    print("austerity_measures", obj->austerity_measures(1));
 
-    // print("get_team_strength", obj->get_team_strength(2));
-    // print("austerity_measures", obj->austerity_measures(2));
+    print("get_team_strength", obj->get_team_strength(2));
+    print("austerity_measures", obj->austerity_measures(2));
 
+    obj->update_contestant_strength(6, 10);
     // std::cout << "PAUSE\n\n\n\n"
     //           << std::endl;
+
+    print("get_team_strength", obj->get_team_strength(1));
+    print("austerity_measures", obj->austerity_measures(1));
+
+    print("get_team_strength", obj->get_team_strength(2));
+    print("austerity_measures", obj->austerity_measures(2));
+
     obj->unite_teams(1, 2);
 
-    // print("get_team_strength", obj->get_team_strength(1));
-    // print("austerity_measures", obj->austerity_measures(1));
+    obj->add_contestant_to_team(1, 10);
+    obj->add_contestant_to_team(1, 20);
 
-    // Team *t = obj->get_team(1);
-    // t->printCurrentContestants();
-    // std::cout << std::endl;
-    // t->printCurrentStrengths();
+    print("get_team_strength", obj->get_team_strength(1));
+    print("austerity_measures", obj->austerity_measures(1));
+    Team *t = obj->get_team(1);
+    t->printCurrentContestants();
+    std::cout << std::endl;
+    t->printCurrentStrengths();
 
     //// Execute all commands in file
     // string op;

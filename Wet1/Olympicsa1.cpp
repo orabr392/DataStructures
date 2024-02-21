@@ -184,14 +184,27 @@ StatusType Olympics::update_contestant_strength(int contestantId, int change)
         contestantsTree.search(contestantId)->data.getContestantStrength() + change < 0)
         return StatusType::FAILURE;
 
+    // int *teamsId = contestant->getTeamsId();
+    // for (int i = 0; i < 3; i++)
+    // {
+    //     if (*(teamsId + i) != 0)
+    //     {
+    //         Team *team = &teamsTree.search(*(teamsId + i))->data;
+    //         team->updateStrength();
+    //         team->calcMaxPossibleStrength();
+    //     }
+    // }
+
     int copiedTeamsId[3];
-    contestantsTree.search(contestantId)->data.copyTeamsId(copiedTeamsId);
+    Contestant *contestant = &contestantsTree.search(contestantId)->data;
+    contestant->copyTeamsId(copiedTeamsId);
+
     for (int i = 0; i < PARTITIONS; i++)
     {
         remove_contestant_from_team(copiedTeamsId[i], contestantId);
     }
 
-    contestantsTree.search(contestantId)->data.changeContestantStrength(change);
+    contestant->changeContestantStrength(change);
 
     for (int i = 0; i < PARTITIONS; i++)
     {
@@ -373,7 +386,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<int, Contestant *> *arr, int arrSiz
             AVLTree<int, Contestant *> newMidRightTree(heightMidRight);
             toDelete = (newMidRightTree.getTreeSize() - sizeMidRight);
             newMidRightTree.adjustTreeSize(newMidRightTree.getRoot(), &toDelete);
-            newMidRightTree.inorderToTree(newMidRightTree.getRoot(), arr, sizeMidRight, sizeLeftMost + (i - 1) * sizeMidRight);
+            newMidRightTree.inorderToTree(newMidRightTree.getRoot(), arr, sizeLeftMost + i * sizeMidRight, sizeLeftMost + (i - 1) * sizeMidRight);
             team->setIndicesTrees(newMidRightTree.getRoot(), newMidRightTree.getTreeSize(), i);
 
             // So the destructor of the tree doesnt erase the new tree
@@ -403,7 +416,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<int, Contestant *> *arr, int arrSiz
         AVLTree<int, Contestant *> newLeftMidTree(heightRightMost);
         toDelete = (newLeftMidTree.getTreeSize() - sizeRightMost);
         newLeftMidTree.adjustTreeSize(newLeftMidTree.getRoot(), &toDelete);
-        newLeftMidTree.inorderToTree(newLeftMidTree.getRoot(), arr, sizeRightMost, 2 * sizeLeftMid);
+        newLeftMidTree.inorderToTree(newLeftMidTree.getRoot(), arr, 2 * sizeLeftMid + sizeRightMost, 2 * sizeLeftMid);
         team->setIndicesTrees(newLeftMidTree.getRoot(), newLeftMidTree.getTreeSize(), RIGHT_MOST);
 
         // So the destructor of the tree doesnt erase the new tree
@@ -482,7 +495,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant *> *arr, in
             AVLTree<TwoKeysInt, Contestant *> newMidRightTree(heightMidRight);
             toDelete = (newMidRightTree.getTreeSize() - sizeMidRight);
             newMidRightTree.adjustTreeSize(newMidRightTree.getRoot(), &toDelete);
-            team->setStrengthTrees(newMidRightTree.getRoot(), newMidRightTree.getTreeSize(), -1);
+            team->setStrengthTrees(newMidRightTree.getRoot(), newMidRightTree.getTreeSize(), i);
 
             // So the destructor of the tree doesnt erase the new tree
             newMidRightTree.disconnectRoot();
@@ -565,25 +578,6 @@ void removeRepetition(AVLNode<dataType1, dataType2> *arr1, AVLNode<dataType1, da
         }
     }
 }
-
-///*
-// * Going through the contestants array and remove contestant from the team
-// * (also actually remove the team from contestant)
-// * @param contArr - the array of the tree currently working on
-// * @param teamID - the team to be removed
-// * @return
-// *          void
-// */
-// void removeAllContestantFromTeam(AVLNode<int ,Contestant>* contArr, int arrSize, int teamID)
-//{
-//    for(int i = 0; i < arrSize; i++)
-//    {
-//        if(contArr[i].data.isContestantOnTeam(teamID))
-//        {
-//            contArr[i].data.leaveTeam(teamID);
-//        }
-//    }
-//}
 
 StatusType Olympics::unite_teams(int teamId1, int teamId2)
 {

@@ -3,8 +3,8 @@
 #include "Country.h"
 #include "Team.h"
 #include "TwoKeysInt.h"
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 #ifndef AVLTREE_H_
 #define AVLTREE_H_
@@ -51,6 +51,7 @@ public:
         else
         {
             root = nullptr;
+            treeSize = 0;
         }
     }
 
