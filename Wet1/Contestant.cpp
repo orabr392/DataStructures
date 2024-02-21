@@ -41,9 +41,9 @@ Contestant::Contestant(Contestant &contestant)
 }
 
 /*
- *   insertTeam: Insert the given teamId to the teamsId array
+ *   joinTeam: Join the given teamId to the teamsId array
  */
-bool Contestant::insertTeam(int teamId)
+bool Contestant::joinTeam(int teamId)
 {
     for (int i = 0; i < TEAMSCAP; i++)
     {

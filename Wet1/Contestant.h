@@ -24,7 +24,7 @@ public:
     Contestant(Contestant &contestant);
     ~Contestant() = default;
     bool isContestantActive();
-    bool insertTeam(int teamId);
+    bool joinTeam(int teamId);
     bool leaveTeam(int teamId);
     bool isContestantOnTeam(int teamId);
     bool isContestantAvailable();

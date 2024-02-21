@@ -139,9 +139,9 @@ StatusType Olympics::add_contestant_to_team(int teamId, int contestantId)
         contestant->isContestantOnTeam(teamId) ||
         !contestant->isContestantAvailable())
         return StatusType::FAILURE;
-    if (contestant->insertTeam(teamId))
+    if (contestant->joinTeam(teamId))
     {
-        if (team->insertContestantToTeam(*contestant))
+        if (team->insertContestantToTeam(contestant))
         {
             team->calcMaxPossibleStrength();
             return StatusType::SUCCESS;
@@ -165,7 +165,7 @@ StatusType Olympics::remove_contestant_from_team(int teamId, int contestantId)
         return StatusType::FAILURE;
     Contestant *contestant = &contestantsTree.search(contestantId)->data;
     Team *team = &teamsTree.search(teamId)->data;
-    if (!team->removeContestantFromTeam(*contestant) ||
+    if (!team->removeContestantFromTeam(contestant) ||
         !contestant->leaveTeam(teamId))
         return StatusType::ALLOCATION_ERROR;
     team->calcMaxPossibleStrength();
@@ -244,6 +244,7 @@ template <typename dataType1, typename dataType2>
 AVLNode<dataType1, dataType2> *merge(AVLNode<dataType1, dataType2> *arrTree1, AVLNode<dataType1, dataType2> *arrTree2, int size1, int size2)
 {
     AVLNode<dataType1, dataType2> *newArr = new AVLNode<dataType1, dataType2>[size1 + size2];
+
     int i = 0, j = 0, k = 0;
     for (i = 0, j = 0, k = 0; i < size1 && j < size2 && k < size1 + size2;)
     {
@@ -279,21 +280,27 @@ AVLNode<dataType1, dataType2> *mergeTeamAVLTrees(AVLTree<dataType1, dataType2> *
 {
     int subTreeSize1 = tree1->getTreeSize();
     AVLNode<dataType1, dataType2> *subTreeConts1 = new AVLNode<dataType1, dataType2>[subTreeSize1];
+
     AVLTree<dataType1, dataType2>::inorderToArray(tree1->getRoot(), subTreeConts1, subTreeSize1, 0);
 
     int subTreeSize2 = tree2->getTreeSize();
     AVLNode<dataType1, dataType2> *subTreeConts2 = new AVLNode<dataType1, dataType2>[subTreeSize2];
+
     AVLTree<dataType1, dataType2>::inorderToArray(tree2->getRoot(), subTreeConts2, subTreeSize2, 0);
 
     int subTreeSize3 = tree3->getTreeSize();
     AVLNode<dataType1, dataType2> *subTreeConts3 = new AVLNode<dataType1, dataType2>[subTreeSize3];
+
     AVLTree<dataType1, dataType2>::inorderToArray(tree3->getRoot(), subTreeConts3, subTreeSize1, 0);
 
     AVLNode<dataType1, dataType2> *tempArr = merge(subTreeConts1, subTreeConts2, subTreeSize1, subTreeSize2);
     AVLNode<dataType1, dataType2> *newArr = merge(tempArr, subTreeConts3, subTreeSize1 + subTreeSize2, subTreeSize3);
     delete[] subTreeConts1;
+
     delete[] subTreeConts2;
+
     delete[] subTreeConts3;
+
     delete[] tempArr;
 
     return newArr;
@@ -327,8 +334,7 @@ int countSizeNoReps(AVLNode<dataType1, dataType2> *arr, int size)
  * @return
  *          void
  */
-template <typename dataType1, typename dataType2>
-void arrayToIndicesTrees(Team *team, AVLNode<dataType1, dataType2> *arr, int arrSize)
+void arrayToIndicesTrees(Team *team, AVLNode<int, Contestant *> *arr, int arrSize)
 {
     if (arrSize % 3 == 0)
     {
@@ -336,8 +342,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<dataType1, dataType2> *arr, int arr
         int height = std::max((int)(std::ceil(std::log(treeSize + 1)) - 1), -1);
         for (int i = 0; i < PARTITIONS; i++)
         {
-            // AVLNode<dataType1, dataType2> *newRoot = AVLTree<dataType1, dataType2>::createEmptyTree(height);
-            AVLTree<dataType1, dataType2> newTree(height);
+            AVLTree<int, Contestant *> newTree(height);
             int toDelete = (newTree.getTreeSize() - treeSize);
             newTree.adjustTreeSize(newTree.getRoot(), &toDelete);
             newTree.inorderToTree(newTree.getRoot(), arr, (i + 1) * treeSize, i * treeSize);
@@ -354,8 +359,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<dataType1, dataType2> *arr, int arr
         int heightLeftMost = std::max((int)(std::ceil(std::log(sizeLeftMost + 1)) - 1), -1);
         int heightMidRight = std::max((int)(std::ceil(std::log(sizeMidRight + 1)) - 1), -1);
 
-        AVLTree<dataType1, dataType2> newLeftTree(heightLeftMost);
-        // AVLNode<dataType1, dataType2> *newRootLeftMost = AVLTree<dataType1, dataType2>::createEmptyTree(heightLeftMost);
+        AVLTree<int, Contestant *> newLeftTree(heightLeftMost);
         int toDelete = (newLeftTree.getTreeSize() - sizeLeftMost);
         newLeftTree.adjustTreeSize(newLeftTree.getRoot(), &toDelete);
         newLeftTree.inorderToTree(newLeftTree.getRoot(), arr, sizeLeftMost, 0);
@@ -366,8 +370,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<dataType1, dataType2> *arr, int arr
 
         for (int i = 1; i < PARTITIONS; i++)
         {
-            // AVLNode<dataType1, dataType2> *newRootMidRight = AVLTree<dataType1, dataType2>::createEmptyTree(heightMidRight);
-            AVLTree<dataType1, dataType2> newMidRightTree(heightMidRight);
+            AVLTree<int, Contestant *> newMidRightTree(heightMidRight);
             toDelete = (newMidRightTree.getTreeSize() - sizeMidRight);
             newMidRightTree.adjustTreeSize(newMidRightTree.getRoot(), &toDelete);
             newMidRightTree.inorderToTree(newMidRightTree.getRoot(), arr, sizeMidRight, sizeLeftMost + (i - 1) * sizeMidRight);
@@ -387,8 +390,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<dataType1, dataType2> *arr, int arr
 
         for (int i = 0; i < PARTITIONS - 1; i++)
         {
-            // AVLNode<dataType1, dataType2> *newRootLeftMid = AVLTree<dataType1, dataType2>::createEmptyTree(heightLeftMid);
-            AVLTree<dataType1, dataType2> newLeftMidTree(heightLeftMid);
+            AVLTree<int, Contestant *> newLeftMidTree(heightLeftMid);
             toDelete = (newLeftMidTree.getTreeSize() - sizeLeftMid);
             newLeftMidTree.adjustTreeSize(newLeftMidTree.getRoot(), &toDelete);
             newLeftMidTree.inorderToTree(newLeftMidTree.getRoot(), arr, (i + 1) * sizeLeftMid, i * sizeLeftMid);
@@ -398,8 +400,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<dataType1, dataType2> *arr, int arr
             newLeftMidTree.disconnectRoot();
         }
 
-        // AVLNode<dataType1, dataType2> *newRootRightMost = AVLTree<dataType1, dataType2>::createEmptyTree(heightRightMost);
-        AVLTree<dataType1, dataType2> newLeftMidTree(heightRightMost);
+        AVLTree<int, Contestant *> newLeftMidTree(heightRightMost);
         toDelete = (newLeftMidTree.getTreeSize() - sizeRightMost);
         newLeftMidTree.adjustTreeSize(newLeftMidTree.getRoot(), &toDelete);
         newLeftMidTree.inorderToTree(newLeftMidTree.getRoot(), arr, sizeRightMost, 2 * sizeLeftMid);
@@ -410,7 +411,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<dataType1, dataType2> *arr, int arr
     }
 }
 
-void fillNodesArray(AVLNode<TwoKeysInt, Contestant> **nodes, AVLNode<TwoKeysInt, Contestant> *node, int *index)
+void fillNodesArray(AVLNode<TwoKeysInt, Contestant *> **nodes, AVLNode<TwoKeysInt, Contestant *> *node, int *index)
 {
     if (node == nullptr)
         return;
@@ -421,9 +422,10 @@ void fillNodesArray(AVLNode<TwoKeysInt, Contestant> **nodes, AVLNode<TwoKeysInt,
     fillNodesArray(nodes, node->rightNode, index);
 }
 
-AVLNode<TwoKeysInt, Contestant> **getNodesFromStrengthsTrees(Team *team)
+AVLNode<TwoKeysInt, Contestant *> **getNodesFromStrengthsTrees(Team *team)
 {
-    AVLNode<TwoKeysInt, Contestant> **nodes = new AVLNode<TwoKeysInt, Contestant> *[team->getCurrentCapacity()];
+    AVLNode<TwoKeysInt, Contestant *> **nodes = new AVLNode<TwoKeysInt, Contestant *> *[team->getCurrentCapacity()];
+
     int index = 0;
     for (int i = 0; i < PARTITIONS; i++)
     {
@@ -440,7 +442,7 @@ AVLNode<TwoKeysInt, Contestant> **getNodesFromStrengthsTrees(Team *team)
  *          void
  */
 
-void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int arrSize)
+void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant *> *arr, int arrSize)
 {
 
     // Create the new empty trees
@@ -451,8 +453,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int 
         int height = std::max((int)(std::ceil(std::log(treeSize + 1)) - 1), -1);
         for (int i = 0; i < PARTITIONS; i++)
         {
-            // AVLNode<dataType1, dataType2> *newRoot = AVLTree<dataType1, dataType2>::createEmptyTree(height);
-            AVLTree<TwoKeysInt, Contestant> newTree(height);
+            AVLTree<TwoKeysInt, Contestant *> newTree(height);
             int toDelete = (newTree.getTreeSize() - treeSize);
             newTree.adjustTreeSize(newTree.getRoot(), &toDelete);
             team->setStrengthTrees(newTree.getRoot(), newTree.getTreeSize(), i);
@@ -468,8 +469,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int 
         int heightLeftMost = std::max((int)(std::ceil(std::log(sizeLeftMost + 1)) - 1), -1);
         int heightMidRight = std::max((int)(std::ceil(std::log(sizeMidRight + 1)) - 1), -1);
 
-        // AVLNode<dataType1, dataType2> *newRootLeftMost = AVLTree<dataType1, dataType2>::createEmptyTree(heightLeftMost);
-        AVLTree<TwoKeysInt, Contestant> newLeftTree(heightLeftMost);
+        AVLTree<TwoKeysInt, Contestant *> newLeftTree(heightLeftMost);
         int toDelete = (newLeftTree.getTreeSize() - sizeLeftMost);
         newLeftTree.adjustTreeSize(newLeftTree.getRoot(), &toDelete);
         team->setStrengthTrees(newLeftTree.getRoot(), newLeftTree.getTreeSize(), LEFT_MOST);
@@ -479,8 +479,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int 
 
         for (int i = 1; i < PARTITIONS; i++)
         {
-            // AVLNode<dataType1, dataType2> *newRootMidRight = AVLTree<dataType1, dataType2>::createEmptyTree(heightMidRight);
-            AVLTree<TwoKeysInt, Contestant> newMidRightTree(heightMidRight);
+            AVLTree<TwoKeysInt, Contestant *> newMidRightTree(heightMidRight);
             toDelete = (newMidRightTree.getTreeSize() - sizeMidRight);
             newMidRightTree.adjustTreeSize(newMidRightTree.getRoot(), &toDelete);
             team->setStrengthTrees(newMidRightTree.getRoot(), newMidRightTree.getTreeSize(), -1);
@@ -500,8 +499,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int 
 
         for (int i = 0; i < PARTITIONS - 1; i++)
         {
-            // AVLNode<dataType1, dataType2> *newRootLeftMid = AVLTree<dataType1, dataType2>::createEmptyTree(heightLeftMid);
-            AVLTree<TwoKeysInt, Contestant> newLeftMidTree(heightLeftMid);
+            AVLTree<TwoKeysInt, Contestant *> newLeftMidTree(heightLeftMid);
             toDelete = (newLeftMidTree.getTreeSize() - sizeLeftMid);
             newLeftMidTree.adjustTreeSize(newLeftMidTree.getRoot(), &toDelete);
             team->setStrengthTrees(newLeftMidTree.getRoot(), newLeftMidTree.getTreeSize(), i);
@@ -510,8 +508,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int 
             newLeftMidTree.disconnectRoot();
         }
 
-        // AVLNode<dataType1, dataType2> *newRootRightMost = AVLTree<dataType1, dataType2>::createEmptyTree(heightRightMost);
-        AVLTree<TwoKeysInt, Contestant> newLeftMidTree(heightRightMost);
+        AVLTree<TwoKeysInt, Contestant *> newLeftMidTree(heightRightMost);
 
         toDelete = (newLeftMidTree.getTreeSize() - sizeRightMost);
         newLeftMidTree.adjustTreeSize(newLeftMidTree.getRoot(), &toDelete);
@@ -527,7 +524,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int 
     // 3. If the we ran over the arr - finish
     // 4. Else go back to step 1
 
-    AVLNode<TwoKeysInt, Contestant> **nodes = getNodesFromStrengthsTrees(team);
+    AVLNode<TwoKeysInt, Contestant *> **nodes = getNodesFromStrengthsTrees(team);
     int idxs[3] = {0,
                    team->getCapacityInSubTree(0),
                    team->getCapacityInSubTree(0) + team->getCapacityInSubTree(1)};
@@ -535,7 +532,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant> *arr, int 
 
     for (int i = 0; i < arrSize; i++)
     {
-        partition = team->whichPartitionContestantBelongs(arr[i].data.getContestantId());
+        partition = team->whichPartitionContestantBelongs(arr[i].data->getContestantId());
         (*(nodes + idxs[partition]))->key = arr[i].key;
         (*(nodes + idxs[partition]))->data = arr[i].data;
         idxs[partition]++;
@@ -596,51 +593,69 @@ StatusType Olympics::unite_teams(int teamId1, int teamId2)
         return StatusType::FAILURE;
     Team *team1 = &(teamsTree.search(teamId1)->data);
     Team *team2 = &(teamsTree.search(teamId2)->data);
+    int team1_size = team1->getCurrentCapacity();
+    int team2_size = team2->getCurrentCapacity();
     if ((*team1).getSport() != (*team2).getSport() || (*team1).getCountryId() != (*team2).getCountryId())
         return StatusType::FAILURE;
 
-    AVLNode<int, Contestant> *arrContTeam1 = mergeTeamAVLTrees<int, Contestant>(&(team1->getIndicesTrees()[0]), &(team1->getIndicesTrees()[1]),
-                                                                                &(team1->getIndicesTrees()[2]));
-    AVLNode<int, Contestant> *arrContTeam2 = mergeTeamAVLTrees<int, Contestant>(&(team2->getIndicesTrees()[0]), &(team2->getIndicesTrees()[1]),
-                                                                                &(team2->getIndicesTrees()[2]));
-    AVLNode<int, Contestant> *arrCombineContRep = merge(arrContTeam1, arrContTeam2, team1->getCurrentCapacity(), team2->getCurrentCapacity());
-    int noRepSize1 = countSizeNoReps(arrCombineContRep, team1->getCurrentCapacity() + team2->getCurrentCapacity());
-    AVLNode<int, Contestant> *arrCombineCont = new AVLNode<int, Contestant>[noRepSize1];
-    removeRepetition(arrCombineCont, arrCombineContRep, noRepSize1, team1->getCurrentCapacity() + team2->getCurrentCapacity());
+    AVLNode<int, Contestant *> *arrContTeam1 = mergeTeamAVLTrees<int, Contestant *>(&(team1->getIndicesTrees()[0]), &(team1->getIndicesTrees()[1]),
+                                                                                    &(team1->getIndicesTrees()[2]));
+    AVLNode<int, Contestant *> *arrContTeam2 = mergeTeamAVLTrees<int, Contestant *>(&(team2->getIndicesTrees()[0]), &(team2->getIndicesTrees()[1]),
+                                                                                    &(team2->getIndicesTrees()[2]));
+    AVLNode<int, Contestant *> *arrCombineContRep = merge(arrContTeam1, arrContTeam2, team1_size, team2_size);
+    int noRepSize1 = countSizeNoReps(arrCombineContRep, team1_size + team2_size);
+    AVLNode<int, Contestant *> *arrCombineCont = new AVLNode<int, Contestant *>[noRepSize1];
+    removeRepetition(arrCombineCont, arrCombineContRep, noRepSize1, team1_size + team2_size);
+
+    AVLNode<TwoKeysInt, Contestant *> *arrStrenTeam1 = mergeTeamAVLTrees<TwoKeysInt, Contestant *>(&(team1->getStrengthsTrees()[0]), &(team1->getStrengthsTrees()[1]),
+                                                                                                   &(team1->getStrengthsTrees()[2]));
+    AVLNode<TwoKeysInt, Contestant *> *arrStrenTeam2 = mergeTeamAVLTrees<TwoKeysInt, Contestant *>(&(team2->getStrengthsTrees()[0]), &(team2->getStrengthsTrees()[1]),
+                                                                                                   &(team2->getStrengthsTrees()[2]));
+    AVLNode<TwoKeysInt, Contestant *> *arrCombineStrenRep = merge(arrStrenTeam1, arrStrenTeam2, team1_size, team2_size);
+    int noRepSize2 = countSizeNoReps(arrCombineStrenRep, team1_size + team2_size);
+    AVLNode<TwoKeysInt, Contestant *> *arrCombineStren = new AVLNode<TwoKeysInt, Contestant *>[noRepSize2];
+    removeRepetition(arrCombineStren, arrCombineStrenRep, noRepSize2, team1_size + team2_size);
+
+    // EMPTY TREE 1 AND TREE 2
+    for (int i = 0; i < noRepSize1; i++)
+    {
+        if (arrCombineCont[i].data->isContestantOnTeam(teamId1))
+        {
+            remove_contestant_from_team(teamId1, arrCombineCont[i].data->getContestantId());
+            arrCombineCont[i].data->joinTeam(teamId1);
+        }
+        if (arrCombineCont[i].data->isContestantOnTeam(teamId2))
+        {
+            remove_contestant_from_team(teamId2, arrCombineCont[i].data->getContestantId());
+            arrCombineCont[i].data->joinTeam(teamId1);
+        }
+    }
+
     arrayToIndicesTrees(team1, arrCombineCont, noRepSize1);
     team1->updateIndicesRanges();
-
-    AVLNode<TwoKeysInt, Contestant> *arrStrenTeam1 = mergeTeamAVLTrees<TwoKeysInt, Contestant>(&(team1->getStrengthsTrees()[0]), &(team1->getStrengthsTrees()[1]),
-                                                                                               &(team1->getStrengthsTrees()[2]));
-    AVLNode<TwoKeysInt, Contestant> *arrStrenTeam2 = mergeTeamAVLTrees<TwoKeysInt, Contestant>(&(team2->getStrengthsTrees()[0]), &(team2->getStrengthsTrees()[1]),
-                                                                                               &(team2->getStrengthsTrees()[2]));
-    AVLNode<TwoKeysInt, Contestant> *arrCombineStrenRep = merge(arrStrenTeam1, arrStrenTeam2, team1->getCurrentCapacity(), team2->getCurrentCapacity());
-    int noRepSize2 = countSizeNoReps(arrCombineStrenRep, team1->getCurrentCapacity() + team2->getCurrentCapacity());
-    AVLNode<TwoKeysInt, Contestant> *arrCombineStren = new AVLNode<TwoKeysInt, Contestant>[noRepSize2];
-    removeRepetition(arrCombineStren, arrCombineStrenRep, noRepSize2, team1->getCurrentCapacity() + team2->getCurrentCapacity());
+    team1->setCurrentCapacity(noRepSize1);
     arrayToStrengthTrees(team1, arrCombineStren, noRepSize2);
 
-    team1->setCurrentCapacity(noRepSize1);
     team1->updateStrength();
     team1->calcMaxPossibleStrength();
 
-    for (int i = 0; i < noRepSize1; i++)
-    {
-        if (arrCombineCont[i].data.isContestantOnTeam(teamId2))
-        {
-            arrCombineCont[i].data.leaveTeam(teamId2);
-            remove_contestant_from_team(teamId2, arrCombineCont[i].data.getContestantId());
-        }
-    }
     remove_team(teamId2);
     delete[] arrContTeam1;
+
     delete[] arrContTeam2;
+
     delete[] arrCombineCont;
+
     delete[] arrCombineContRep;
+
     delete[] arrStrenTeam1;
+
     delete[] arrStrenTeam2;
+
     delete[] arrCombineStren;
+
     delete[] arrCombineStrenRep;
+
     return StatusType::SUCCESS;
 }
 

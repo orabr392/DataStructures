@@ -52,10 +52,10 @@ Sport Team::getSport()
 /*
  *   insertIntoParition: Inserts a given contestant into a given partition
  */
-void Team::insertIntoPartition(Contestant contestant, int partition)
+void Team::insertIntoPartition(Contestant *contestant, int partition)
 {
-    int contestantId = contestant.getContestantId();
-    int contestantStrength = contestant.getContestantStrength();
+    int contestantId = contestant->getContestantId();
+    int contestantStrength = contestant->getContestantStrength();
     TwoKeysInt twoKeys(contestantStrength, contestantId);
     indicesTrees[partition].insert(contestantId, contestant);
     strengthsTrees[partition].insert(twoKeys, contestant);
@@ -68,22 +68,24 @@ void Team::insertIntoPartition(Contestant contestant, int partition)
  */
 Contestant *Team::removeFromPartition(int partition, bool rightMostNode)
 {
-    Contestant *contestant;
+    AVLNode<int, Contestant *> *edgeNode;
     if (rightMostNode)
-        contestant = indicesTrees[partition].getRightMostNode();
+        edgeNode = indicesTrees[partition].getRightMostNode();
     else
-        contestant = indicesTrees[partition].getLeftMostNode();
-    if (contestant == nullptr)
+        edgeNode = indicesTrees[partition].getLeftMostNode();
+    if (edgeNode == nullptr)
     {
         return nullptr;
     }
-    contestant = new Contestant(*contestant);
-    TwoKeysInt twoKeys(contestant->getContestantStrength(), contestant->getContestantId());
+    Contestant *contestant = edgeNode->data;
+    int contestantId = edgeNode->data->getContestantId();
+    int contestantStrength = edgeNode->data->getContestantStrength();
+    TwoKeysInt twoKeys(contestantStrength, contestantId);
     if (!strengthsTrees[partition].remove(twoKeys))
     {
         // Throw an exception
     }
-    if (!indicesTrees[partition].remove(contestant->getContestantId()))
+    if (!indicesTrees[partition].remove(contestantId))
     {
         // Throw an exception
     }
@@ -95,7 +97,7 @@ Contestant *Team::removeFromPartition(int partition, bool rightMostNode)
 /*
  *   insertContestantToTeam: A wrapper function that inserts the given contestant to the team's trees
  */
-bool Team::insertContestantToTeam(Contestant contestant)
+bool Team::insertContestantToTeam(Contestant *contestant)
 {
 
     Contestant *c_ptr;
@@ -109,8 +111,7 @@ bool Team::insertContestantToTeam(Contestant contestant)
         c_ptr = removeFromPartition(0, RIGHTMOSTNODE);
 
         // Insert into bucket 1
-        insertIntoPartition(*c_ptr, 1);
-        delete c_ptr;
+        insertIntoPartition(c_ptr, 1);
 
         // Remove from bucket 2 if needed
         if (capacityInSubTree[1] > ((currentCapacity - 1) / 3) + 1)
@@ -118,8 +119,7 @@ bool Team::insertContestantToTeam(Contestant contestant)
             c_ptr = removeFromPartition(1, RIGHTMOSTNODE);
 
             // Insert into bucket 2
-            insertIntoPartition(*c_ptr, 2);
-            delete c_ptr;
+            insertIntoPartition(c_ptr, 2);
         }
     }
 
@@ -134,13 +134,13 @@ bool Team::insertContestantToTeam(Contestant contestant)
 /*
  *   removeContestantFromTeam: Removes given contestant from the team
  */
-bool Team::removeContestantFromTeam(Contestant contestant)
+bool Team::removeContestantFromTeam(Contestant *contestant)
 {
     // Find the right bucket to remove contestant from
     int partition;
     for (int i = 0; i < PARTITIONS; i++)
     {
-        if (indicesTrees[i].nodeExists(contestant.getContestantId()))
+        if (indicesTrees[i].nodeExists(contestant->getContestantId()))
         {
             partition = i;
             break;
@@ -223,8 +223,7 @@ void Team::leftShift(int partition)
         std::cout << "Left shift, Parition: " << partition << std::endl;
         return;
     }
-    insertIntoPartition(*contestant, nextPartition);
-    delete contestant;
+    insertIntoPartition(contestant, nextPartition);
 }
 
 /*
@@ -240,42 +239,38 @@ void Team::rightShift(int partition)
         std::cout << "Right shift, Parition: " << partition << std::endl;
         return;
     }
-    insertIntoPartition(*contestant, nextPartition);
-    delete contestant;
+    insertIntoPartition(contestant, nextPartition);
 }
 
 void Team::swapBetweenPartitions(int partition)
 {
-    Contestant *contestant1 = indicesTrees[partition].getRightMostNode();
-    Contestant *contestant2 = indicesTrees[partition + 1].getLeftMostNode();
-    if (contestant1 == nullptr || contestant2 == nullptr)
+    AVLNode<int, Contestant *> *edgeNodeRight = indicesTrees[partition].getRightMostNode();
+    AVLNode<int, Contestant *> *edgeNodeLeft = indicesTrees[partition + 1].getLeftMostNode();
+    if (edgeNodeRight == nullptr || edgeNodeLeft == nullptr)
         return;
-    else if (contestant1->getContestantId() > contestant2->getContestantId())
+    Contestant *contestant1 = edgeNodeRight->data;
+    Contestant *contestant2 = edgeNodeLeft->data;
+    if (contestant1->getContestantId() > contestant2->getContestantId())
     {
-        contestant1 = new Contestant(*contestant1);
-        contestant2 = new Contestant(*contestant2);
-
-        removeContestantFromPartition(*contestant1, partition);
-        removeContestantFromPartition(*contestant2, partition + 1);
-        insertIntoPartition(*contestant2, partition);
-        insertIntoPartition(*contestant1, partition + 1);
+        removeContestantFromPartition(contestant1, partition);
+        removeContestantFromPartition(contestant2, partition + 1);
+        insertIntoPartition(contestant2, partition);
+        insertIntoPartition(contestant1, partition + 1);
 
         if (contestant1 == nullptr || contestant2 == nullptr)
         {
             std::cout << "Hey" << std::endl;
         }
-        delete contestant1;
-        delete contestant2;
     }
 }
 
 /*
  *   removeContestantFromPartition: Removes a given contestant from a given partition
  */
-void Team::removeContestantFromPartition(Contestant contestant, int partition)
+void Team::removeContestantFromPartition(Contestant *contestant, int partition)
 {
-    TwoKeysInt twoKey(contestant.getContestantStrength(), contestant.getContestantId());
-    indicesTrees[partition].remove(contestant.getContestantId());
+    TwoKeysInt twoKey(contestant->getContestantStrength(), contestant->getContestantId());
+    indicesTrees[partition].remove(contestant->getContestantId());
     strengthsTrees[partition].remove(twoKey);
     capacityInSubTree[partition]--;
     currentCapacity--;
@@ -286,7 +281,6 @@ void Team::removeContestantFromPartition(Contestant contestant, int partition)
  */
 void Team::updateStrength()
 {
-    Contestant *contestant;
     if (currentCapacity % PARTITIONS != 0)
     {
         strength = 0;
@@ -296,10 +290,10 @@ void Team::updateStrength()
         int sum = 0;
         for (int i = 0; i < PARTITIONS; i++)
         {
-            contestant = strengthsTrees[i].getRightMostNode();
-            if (contestant != nullptr)
+            AVLNode<TwoKeysInt, Contestant *> *edgeNodeRight = strengthsTrees[i].getRightMostNode();
+            if (edgeNodeRight != nullptr)
             {
-                sum += contestant->getContestantStrength();
+                sum += edgeNodeRight->data->getContestantStrength();
             }
             else
             {
@@ -314,15 +308,15 @@ void Team::updateIndicesRanges()
 {
     for (int i = 0; i < PARTITIONS; i++)
     {
-        Contestant *leftMostNode = indicesTrees[i].getLeftMostNode();
-        Contestant *rightMostNode = indicesTrees[i].getRightMostNode();
-        if (leftMostNode != nullptr)
+        AVLNode<int, Contestant *> *edgeNodeLeft = indicesTrees[i].getLeftMostNode();
+        AVLNode<int, Contestant *> *edgeNodeRight = indicesTrees[i].getRightMostNode();
+        if (edgeNodeLeft != nullptr)
         {
-            indicesRanges[i][0] = leftMostNode->getContestantId();
+            indicesRanges[i][0] = edgeNodeLeft->data->getContestantId();
         }
-        if (rightMostNode != nullptr)
+        if (edgeNodeRight != nullptr)
         {
-            indicesRanges[i][1] = rightMostNode->getContestantId();
+            indicesRanges[i][1] = edgeNodeRight->data->getContestantId();
         }
     }
 }
@@ -367,12 +361,12 @@ void Team::printCurrentStrengths()
     strengthsTrees[2].printInOrder();
 }
 
-AVLTree<int, Contestant> *Team::getIndicesTrees()
+AVLTree<int, Contestant *> *Team::getIndicesTrees()
 {
     return indicesTrees;
 }
 
-AVLTree<TwoKeysInt, Contestant> *Team::getStrengthsTrees()
+AVLTree<TwoKeysInt, Contestant *> *Team::getStrengthsTrees()
 {
     return strengthsTrees;
 }
@@ -401,42 +395,39 @@ void Team::calcMaxPossibleStrength()
     for (int i = 0; i < PARTITIONS; i++)
     {
 
-        Contestant *minStrengthCont = strengthsTrees[i].getLeftMostNode();
-        if (minStrengthCont == nullptr)
+        AVLNode<TwoKeysInt, Contestant *> *edgeNodeLeft = strengthsTrees[i].getLeftMostNode();
+        if (edgeNodeLeft == nullptr)
             continue;
-        minStrengthCont = new Contestant(*minStrengthCont);
-        removeContestantFromTeam(*minStrengthCont);
+        Contestant *minStrengthCont = edgeNodeLeft->data;
+        removeContestantFromTeam(minStrengthCont);
         for (int j = i; j < PARTITIONS; j++)
         {
-            Contestant *secMinStrengthCont = strengthsTrees[j].getLeftMostNode();
-            if (secMinStrengthCont == nullptr)
+            edgeNodeLeft = strengthsTrees[j].getLeftMostNode();
+            if (edgeNodeLeft == nullptr)
                 continue;
-            secMinStrengthCont = new Contestant(*secMinStrengthCont);
-            removeContestantFromTeam(*secMinStrengthCont);
+            Contestant *secMinStrengthCont = edgeNodeLeft->data;
+            removeContestantFromTeam(secMinStrengthCont);
             for (int k = j; k < PARTITIONS; k++)
             {
-                Contestant *thirdMinStrengthCont = strengthsTrees[k].getLeftMostNode();
-                if (thirdMinStrengthCont == nullptr)
+                edgeNodeLeft = strengthsTrees[k].getLeftMostNode();
+                if (edgeNodeLeft == nullptr)
                     continue;
-                thirdMinStrengthCont = new Contestant(*thirdMinStrengthCont);
-                removeContestantFromTeam(*thirdMinStrengthCont);
+                Contestant *thirdMinStrengthCont = edgeNodeLeft->data;
+                removeContestantFromTeam(thirdMinStrengthCont);
                 updateStrength();
                 if (strength > maxValueReached)
                     maxValueReached = strength;
-                insertContestantToTeam(*thirdMinStrengthCont);
-                delete thirdMinStrengthCont;
+                insertContestantToTeam(thirdMinStrengthCont);
             }
-            insertContestantToTeam(*secMinStrengthCont);
-            delete secMinStrengthCont;
+            insertContestantToTeam(secMinStrengthCont);
         }
-        insertContestantToTeam(*minStrengthCont);
-        delete minStrengthCont;
+        insertContestantToTeam(minStrengthCont);
     }
     updateStrength();
     maxPossibleStrength = maxValueReached;
 }
 
-void Team::setIndicesTrees(AVLNode<int, Contestant> *root, int treeSize, int i)
+void Team::setIndicesTrees(AVLNode<int, Contestant *> *root, int treeSize, int i)
 {
     if (i < 0 || i >= PARTITIONS)
         return;
@@ -445,7 +436,7 @@ void Team::setIndicesTrees(AVLNode<int, Contestant> *root, int treeSize, int i)
     capacityInSubTree[i] = treeSize;
 }
 
-void Team::setStrengthTrees(AVLNode<TwoKeysInt, Contestant> *root, int treeSize, int i)
+void Team::setStrengthTrees(AVLNode<TwoKeysInt, Contestant *> *root, int treeSize, int i)
 {
     if (i < 0 || i >= PARTITIONS)
         return;

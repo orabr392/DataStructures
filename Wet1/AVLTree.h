@@ -41,6 +41,7 @@ public:
         if (height >= 0)
         {
             root = new AVLNode<dataType1, dataType2>();
+
             root->leftNode = createEmptyTreeAux(root, height - 1, true, false);
             root->rightNode = createEmptyTreeAux(root, height - 1, false, true);
             root->parentNode = nullptr;
@@ -182,6 +183,7 @@ public:
         if (root == nullptr)
         {
             root = new AVLNode<dataType1, dataType2>(key, data);
+
             // root = initNewNode(key, data);
             treeSize++;
             return true;
@@ -293,8 +295,10 @@ public:
         // target is also the root
         if (parent == nullptr)
         {
-            destroy(target);
             root = nullptr;
+
+            destroy(target);
+
             return true;
         }
         else
@@ -303,12 +307,14 @@ public:
             {
                 parent->leftNode = nullptr;
                 updateNodeParameters(parent);
+
                 destroy(target);
             }
             else if (target->isRightChild)
             {
                 parent->rightNode = nullptr;
                 updateNodeParameters(parent);
+
                 destroy(target);
             }
             else
@@ -342,6 +348,7 @@ public:
                 root = target->rightNode;
                 root->parentNode = nullptr;
                 target->rightNode = nullptr;
+
                 destroy(target);
             }
             else
@@ -354,6 +361,7 @@ public:
                     target->rightNode->parentNode = parent;
                     target->rightNode = nullptr;
                     updateNodeParameters(parent);
+
                     destroy(target);
                 }
                 else if (target->isRightChild)
@@ -362,6 +370,7 @@ public:
                     target->rightNode->parentNode = parent;
                     target->rightNode = nullptr;
                     updateNodeParameters(parent);
+
                     destroy(target);
                 }
                 else
@@ -381,6 +390,7 @@ public:
                 root = target->leftNode;
                 root->parentNode = nullptr;
                 target->leftNode = nullptr;
+
                 destroy(target);
             }
             else
@@ -401,6 +411,7 @@ public:
                     target->leftNode->parentNode = parent;
                     target->leftNode = nullptr;
                     updateNodeParameters(parent);
+
                     destroy(target);
                 }
                 else
@@ -466,6 +477,7 @@ public:
     void insertLeftNaive(AVLNode<dataType1, dataType2> *target, dataType1 key, dataType2 data)
     {
         AVLNode<dataType1, dataType2> *newNode = new AVLNode<dataType1, dataType2>(key, data);
+
         // AVLNode<dataType1, dataType2> *newNode = initNewNode(key, data);
         newNode->isLeftChild = true;
         newNode->parentNode = target;
@@ -483,6 +495,7 @@ public:
     void insertRightNaive(AVLNode<dataType1, dataType2> *target, dataType1 key, dataType2 data)
     {
         AVLNode<dataType1, dataType2> *newNode = new AVLNode<dataType1, dataType2>(key, data);
+
         // AVLNode<dataType1, dataType2> *newNode = initNewNode(key, data);
         newNode->isRightChild = true;
         newNode->parentNode = target;
@@ -713,7 +726,7 @@ public:
      *   dataType2* - A pointer to the right most node
      */
 
-    dataType2 *getRightMostNode()
+    AVLNode<dataType1, dataType2> *getRightMostNode()
     {
         AVLNode<dataType1, dataType2> *temp = root;
         if (temp == nullptr)
@@ -721,7 +734,7 @@ public:
         while (temp->rightNode != nullptr)
             temp = temp->rightNode;
         // return new dataType2(temp->data);
-        return &temp->data;
+        return temp;
     }
 
     /*
@@ -732,7 +745,7 @@ public:
      *   dataType2* - A pointer to the left most node
      */
 
-    dataType2 *getLeftMostNode()
+    AVLNode<dataType1, dataType2> *getLeftMostNode()
     {
         AVLNode<dataType1, dataType2> *temp = root;
         if (temp == nullptr)
@@ -740,7 +753,7 @@ public:
         while (temp->leftNode != nullptr)
             temp = temp->leftNode;
         // return new dataType2(temp->data);
-        return &temp->data;
+        return temp;
     }
 
     /*
@@ -798,14 +811,11 @@ public:
             return i;
 
         i = inorderToTree(node->leftNode, arr, arrSize, i);
-        if (i > arrSize - 1)
+        if (i >= arrSize)
             return i;
         node->key = arr[i].key;
         node->data = arr[i].data;
         i++;
-        // *node = arr[i++];
-        while (arr[i].key == node->key)
-            i++;
         return inorderToTree(node->rightNode, arr, arrSize, i);
     }
 
@@ -822,11 +832,14 @@ public:
     {
         int size1 = tree1.getTreeSize(), size2 = tree2.getTreeSize();
         AVLNode<dataType1, dataType2> *arrTree1 = new AVLNode<dataType1, dataType2>[size1];
+
         AVLNode<dataType1, dataType2> *arrTree2 = new AVLNode<dataType1, dataType2>[size2];
+
         inorderToArray(tree1.getRoot(), arrTree1, size1, 0);
         inorderToArray(tree2.getRoot(), arrTree2, size2, 0);
 
         AVLNode<dataType1, dataType2> *newArr = new AVLNode<dataType1, dataType2>[size1 + size2];
+
         int i, j, k;
         for (i = 0, j = 0, k = 0; i < size1 && j < size2 && k < size1 + size2;)
         {
@@ -865,6 +878,7 @@ public:
         if (height < 0)
             return nullptr;
         AVLNode<dataType1, dataType2> *node = new AVLNode<dataType1, dataType2>();
+
         node->isLeftChild = isLeftChild;
         node->isRightChild = isRightChild;
         node->leftNode = createEmptyTreeAux(node, height - 1, true, false);
@@ -906,29 +920,6 @@ public:
         else
             adjustTreeSize(root->leftNode, toDelete);
     }
-
-    // static void adjustTreeSize(AVLNode<dataType1, dataType2> *root, int *toDelete)
-    // {
-    //     if (root == nullptr || *toDelete <= 0)
-    //         return;
-    //     adjustTreeSize(root->rightNode, toDelete);
-    //     if (root->rightNode == nullptr && root->leftNode == nullptr)
-    //     {
-    //         AVLNode<dataType1, dataType2> *temp = root;
-    //         if (root->parentNode != nullptr && root->parentNode->rightNode == root)
-    //         {
-    //             root->parentNode->rightNode = nullptr;
-    //         }
-    //         else if (root->parentNode != nullptr && root->parentNode->leftNode == root)
-    //         {
-    //             root->parentNode->leftNode = nullptr;
-    //         }
-    //         delete temp;
-    //         (*toDelete)--;
-    //     }
-    //     else
-    //         adjustTreeSize(root->leftNode, toDelete);
-    // }
 
     AVLNode<dataType1, dataType2> *getRoot() const
     {
