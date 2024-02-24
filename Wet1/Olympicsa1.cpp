@@ -78,7 +78,7 @@ StatusType Olympics::remove_team(int teamId)
 {
     if (teamId <= 0)
         return StatusType::INVALID_INPUT;
-    if (!teamsTree.nodeExists(teamId))
+    if (!teamsTree.nodeExists(teamId) || !teamsTree.search(teamId)->data.isTeamEmpty())
         return StatusType::FAILURE;
     Country *country = teamsTree.search(teamId)->data.getCountry();
     if (!teamsTree.remove(teamId))
@@ -183,17 +183,6 @@ StatusType Olympics::update_contestant_strength(int contestantId, int change)
     if (!contestantsTree.nodeExists(contestantId) ||
         contestantsTree.search(contestantId)->data.getContestantStrength() + change < 0)
         return StatusType::FAILURE;
-
-    // int *teamsId = contestant->getTeamsId();
-    // for (int i = 0; i < 3; i++)
-    // {
-    //     if (*(teamsId + i) != 0)
-    //     {
-    //         Team *team = &teamsTree.search(*(teamsId + i))->data;
-    //         team->updateStrength();
-    //         team->calcMaxPossibleStrength();
-    //     }
-    // }
 
     int copiedTeamsId[3];
     Contestant *contestant = &contestantsTree.search(contestantId)->data;
@@ -616,13 +605,12 @@ StatusType Olympics::unite_teams(int teamId1, int teamId2)
         if (arrCombineCont[i].data->isContestantOnTeam(teamId1))
         {
             remove_contestant_from_team(teamId1, arrCombineCont[i].data->getContestantId());
-            arrCombineCont[i].data->joinTeam(teamId1);
         }
         if (arrCombineCont[i].data->isContestantOnTeam(teamId2))
         {
             remove_contestant_from_team(teamId2, arrCombineCont[i].data->getContestantId());
-            arrCombineCont[i].data->joinTeam(teamId1);
         }
+        arrCombineCont[i].data->joinTeam(teamId1);
     }
 
     arrayToIndicesTrees(team1, arrCombineCont, noRepSize1);

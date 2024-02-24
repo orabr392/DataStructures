@@ -44,6 +44,7 @@ public:
     int getCountryId();
     bool insertContestantToTeam(Contestant *contestant);
     bool removeContestantFromTeam(Contestant *contestant);
+    bool isTeamEpmty();
     int whichPartitionContestantBelongs(int contestantId);
     void calcMaxPossibleStrength();
     void updateIndicesRanges();

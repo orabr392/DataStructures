@@ -448,3 +448,8 @@ void Team::setCurrentCapacity(int capacity)
 {
     currentCapacity = capacity;
 }
+
+bool Team::isTeamEpmty()
+{
+    return (indicesTrees[0].getTreeSize() == 0) && (indicesTrees[1].getTreeSize() == 0) && (indicesTrees[2].getTreeSize() == 0);
+}
