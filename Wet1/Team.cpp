@@ -314,9 +314,17 @@ void Team::updateIndicesRanges()
         {
             indicesRanges[i][0] = edgeNodeLeft->data->getContestantId();
         }
+        else
+        {
+            indicesRanges[i][0] = 0;
+        }
         if (edgeNodeRight != nullptr)
         {
             indicesRanges[i][1] = edgeNodeRight->data->getContestantId();
+        }
+        else
+        {
+            indicesRanges[i][1] = 0;
         }
     }
 }

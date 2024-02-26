@@ -249,8 +249,6 @@ public:
         {
             AVLNode<dataType1, dataType2> *nextNode = findNextNode(toBeRemoved);
             swapTwoNodes(toBeRemoved, nextNode);
-
-            toBeRemoved = nextNode;
         }
 
         AVLNode<dataType1, dataType2> *parent = toBeRemoved->parentNode;
@@ -452,19 +450,71 @@ public:
 
     void swapTwoNodes(AVLNode<dataType1, dataType2> *v1, AVLNode<dataType1, dataType2> *v2)
     {
-        dataType1 key1, key2;
-        key1 = v1->key;
-        key2 = v2->key;
+        AVLNode<dataType1, dataType2> *leftNodeV1 = v1->leftNode;
+        AVLNode<dataType1, dataType2> *rightNodeV1 = v1->rightNode;
+        AVLNode<dataType1, dataType2> *parentNodeV1 = v1->parentNode;
 
-        dataType2 data1, data2;
-        data1 = v1->data;
-        data2 = v2->data;
+        if (v1->rightNode == v2)
+        {
+            v1->rightNode = v2->rightNode;
+            v1->leftNode = v2->leftNode;
+            v1->parentNode = v2;
 
-        v1->key = key2;
-        v2->key = key1;
+            v2->rightNode = v1;
+            v2->leftNode = leftNodeV1;
+            v2->parentNode = parentNodeV1;
+        }
+        else
+        {
+            v1->rightNode = v2->rightNode;
+            v1->leftNode = v2->leftNode;
+            v1->parentNode = v2->parentNode;
 
-        v1->data = data2;
-        v2->data = data1;
+            v2->rightNode = rightNodeV1;
+            v2->leftNode = leftNodeV1;
+            v2->parentNode = parentNodeV1;
+        }
+        if (v2->parentNode == nullptr)
+        {
+            root = v2;
+        }
+        else
+        {
+            if (v1->isLeftChild)
+            {
+                v2->parentNode->leftNode = v2;
+                v2->isLeftChild = true;
+                v2->isRightChild = false;
+            }
+            else if (v1->isRightChild)
+            {
+                v2->parentNode->rightNode = v2;
+
+                v2->isLeftChild = false;
+                v2->isRightChild = true;
+            }
+        }
+        v1->isLeftChild = v2->isLeftChild;
+        v1->isRightChild = v2->isRightChild;
+
+        if (v1->leftNode != nullptr)
+        {
+            v1->leftNode->parentNode = v1;
+        }
+        if (v1->rightNode != nullptr)
+        {
+            v1->rightNode->parentNode = v1;
+        }
+        if (v2->leftNode != nullptr)
+        {
+            v2->leftNode->parentNode = v2;
+        }
+        if (v2->rightNode != nullptr)
+        {
+            v2->rightNode->parentNode = v2;
+        }
+        updateNodeParameters(v1);
+        updateNodeParameters(v2);
     }
 
     /*
