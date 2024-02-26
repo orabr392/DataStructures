@@ -477,25 +477,29 @@ public:
         if (v2->parentNode == nullptr)
         {
             root = v2;
+            v1->isLeftChild = v2->isLeftChild;
+            v1->isRightChild = v2->isRightChild;
         }
         else
         {
             if (v1->isLeftChild)
             {
+                v1->isLeftChild = v2->isLeftChild;
+                v1->isRightChild = v2->isRightChild;
                 v2->parentNode->leftNode = v2;
                 v2->isLeftChild = true;
                 v2->isRightChild = false;
             }
             else if (v1->isRightChild)
             {
+                v1->isLeftChild = v2->isLeftChild;
+                v1->isRightChild = v2->isRightChild;
                 v2->parentNode->rightNode = v2;
 
                 v2->isLeftChild = false;
                 v2->isRightChild = true;
             }
         }
-        v1->isLeftChild = v2->isLeftChild;
-        v1->isRightChild = v2->isRightChild;
 
         if (v1->leftNode != nullptr)
         {
@@ -959,7 +963,7 @@ public:
                 node->parentNode->rightNode = nullptr;
                 updateNodeParameters(node->parentNode);
             }
-            else if (root->parentNode != nullptr && node->isLeftChild == true)
+            else if (node->parentNode != nullptr && node->isLeftChild == true)
             {
                 node->parentNode->leftNode = nullptr;
                 updateNodeParameters(node->parentNode);
@@ -969,7 +973,7 @@ public:
             treeSize--;
         }
         else
-            adjustTreeSize(root->leftNode, toDelete);
+            adjustTreeSize(node->leftNode, toDelete);
     }
 
     AVLNode<dataType1, dataType2> *getRoot() const

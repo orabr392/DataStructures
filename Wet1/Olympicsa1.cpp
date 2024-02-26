@@ -341,7 +341,7 @@ void arrayToIndicesTrees(Team *team, AVLNode<int, Contestant *> *arr, int arrSiz
     if (arrSize % 3 == 0)
     {
         int treeSize = arrSize / 3;
-        int height = std::max((int)(std::ceil(std::log(treeSize + 1)) - 1), -1);
+        int height = std::max((int)(std::ceil(std::log2(treeSize + 1)) - 1), -1);
         for (int i = 0; i < PARTITIONS; i++)
         {
             AVLTree<int, Contestant *> newTree(height);
@@ -358,8 +358,8 @@ void arrayToIndicesTrees(Team *team, AVLNode<int, Contestant *> *arr, int arrSiz
     {
         int sizeLeftMost = (arrSize / 3) + 1;
         int sizeMidRight = sizeLeftMost - 1;
-        int heightLeftMost = std::max((int)(std::ceil(std::log(sizeLeftMost + 1)) - 1), -1);
-        int heightMidRight = std::max((int)(std::ceil(std::log(sizeMidRight + 1)) - 1), -1);
+        int heightLeftMost = std::max((int)(std::ceil(std::log2(sizeLeftMost + 1)) - 1), -1);
+        int heightMidRight = std::max((int)(std::ceil(std::log2(sizeMidRight + 1)) - 1), -1);
 
         AVLTree<int, Contestant *> newLeftTree(heightLeftMost);
         int toDelete = (newLeftTree.getTreeSize() - sizeLeftMost);
@@ -386,8 +386,8 @@ void arrayToIndicesTrees(Team *team, AVLNode<int, Contestant *> *arr, int arrSiz
     {
         int sizeLeftMid = (arrSize / 3) + 1;
         int sizeRightMost = sizeLeftMid - 1;
-        int heightLeftMid = std::max((int)(std::ceil(std::log(sizeLeftMid + 1)) - 1), -1);
-        int heightRightMost = std::max((int)(std::ceil(std::log(sizeRightMost + 1)) - 1), -1);
+        int heightLeftMid = std::max((int)(std::ceil(std::log2(sizeLeftMid + 1)) - 1), -1);
+        int heightRightMost = std::max((int)(std::ceil(std::log2(sizeRightMost + 1)) - 1), -1);
         int toDelete;
 
         for (int i = 0; i < PARTITIONS - 1; i++)
@@ -452,7 +452,7 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant *> *arr, in
     if (arrSize % 3 == 0)
     {
         int treeSize = arrSize / 3;
-        int height = std::max((int)(std::ceil(std::log(treeSize + 1)) - 1), -1);
+        int height = std::max((int)(std::ceil(std::log2(treeSize + 1)) - 1), -1);
         for (int i = 0; i < PARTITIONS; i++)
         {
             AVLTree<TwoKeysInt, Contestant *> newTree(height);
@@ -468,8 +468,8 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant *> *arr, in
     {
         int sizeLeftMost = (arrSize / 3) + 1;
         int sizeMidRight = sizeLeftMost - 1;
-        int heightLeftMost = std::max((int)(std::ceil(std::log(sizeLeftMost + 1)) - 1), -1);
-        int heightMidRight = std::max((int)(std::ceil(std::log(sizeMidRight + 1)) - 1), -1);
+        int heightLeftMost = std::max((int)(std::ceil(std::log2(sizeLeftMost + 1)) - 1), -1);
+        int heightMidRight = std::max((int)(std::ceil(std::log2(sizeMidRight + 1)) - 1), -1);
 
         AVLTree<TwoKeysInt, Contestant *> newLeftTree(heightLeftMost);
         int toDelete = (newLeftTree.getTreeSize() - sizeLeftMost);
@@ -495,8 +495,8 @@ void arrayToStrengthTrees(Team *team, AVLNode<TwoKeysInt, Contestant *> *arr, in
     {
         int sizeLeftMid = (arrSize / 3) + 1;
         int sizeRightMost = sizeLeftMid - 1;
-        int heightLeftMid = std::max((int)(std::ceil(std::log(sizeLeftMid + 1)) - 1), -1);
-        int heightRightMost = std::max((int)(std::ceil(std::log(sizeRightMost + 1)) - 1), -1);
+        int heightLeftMid = std::max((int)(std::ceil(std::log2(sizeLeftMid + 1)) - 1), -1);
+        int heightRightMost = std::max((int)(std::ceil(std::log2(sizeRightMost + 1)) - 1), -1);
         int toDelete;
 
         for (int i = 0; i < PARTITIONS - 1; i++)
