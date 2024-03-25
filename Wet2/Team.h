@@ -17,6 +17,15 @@ class Team {
     AVLTree<TwoKeysInt, int> playersTree;
 
     void calculateTeamStr();
+    void combineStacks(Team* otherTeam);
+    void mergeTeamsTrees(AVLTree<TwoKeysInt, int>* otherTree,
+                         int playersCounterBefore);
+    AVLNode<TwoKeysInt, int>* mergeTeamAVLTrees(
+        AVLTree<TwoKeysInt, int>* tree1, AVLTree<TwoKeysInt, int>* tree2,
+        int playersCounterBefore);
+    AVLNode<TwoKeysInt, int>* merge(AVLNode<TwoKeysInt, int>* arrTree1,
+                                    AVLNode<TwoKeysInt, int>* arrTree2,
+                                    int size1, int size2);
 
    public:
     Team();
@@ -25,59 +34,8 @@ class Team {
     int getTeamStr();
     void insertPlayer(int str);
     void removeNewestPlayer();
+    bool isEmpty();
+    void purchaseTeam(Team* otherTeam);
 };
-
-Team::Team() {
-    this->teamId = 0;
-    this->teamStr = 0;
-    this->playersCounter = 0;
-    this->nextPlayerId = 1;
-}
-
-Team::Team(int teamId) {
-    this->teamId = teamId;
-    this->teamStr = 0;
-    this->playersCounter = 0;
-    this->nextPlayerId = 1;
-}
-
-int Team::getTeamStr() { return this->teamStr; }
-
-void Team::calculateTeamStr() {
-    if (this->playersCounter == 0) {
-        this->teamStr = 0;
-        return;
-    }
-    int median = (this->playersCounter / 2) + 1;
-    AVLNode<TwoKeysInt, int>* player =
-        this->playersTree.getNodeByRank(median);
-    this->teamStr = player->data;
-}
-
-void Team::insertPlayer(int str) {
-    TwoKeysInt playerKey(str, this->nextPlayerId);
-    this->playersStack.push(playerKey);
-    this->playersTree.insert(playerKey, str);
-
-    this->nextPlayerId += 1;
-    this->playersCounter += 1;
-
-    this->calculateTeamStr();
-}
-
-void Team::removeNewestPlayer() {
-    if (playersCounter == 0) {
-        return;
-    }
-
-    TwoKeysInt playerKey = this->playersStack.top();
-    this->playersTree.remove(playerKey);
-    this->playersStack.pop();
-
-    this->playersCounter -= 1;
-    this->nextPlayerId -= 1;
-
-    this->calculateTeamStr();
-}
 
 #endif

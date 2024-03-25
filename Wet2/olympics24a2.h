@@ -1,34 +1,35 @@
-// 
+//
 // 234218 Data Structures 1.
 // Semester: 2024A (winter).
 // Wet Exercise #2.
-// 
+//
 // Recommended TAB size to view this file: 8.
-// 
+//
 // The following header file contains all methods we expect you to implement.
 // You MAY add private methods and fields of your own.
 // DO NOT erase or modify the signatures of the public methods.
 // DO NOT modify the preprocessors in this file.
 // DO NOT use the preprocessors in your other code files.
-// 
+//
 
 #ifndef OLYMPICSA2_H_
 #define OLYMPICSA2_H_
 
+#include "HashTable.h"
+#include "StrTree.h"
 #include "wet2util.h"
 
 class olympics_t {
-private:
-	//
-	// Here you may add anything you want
-	//
-	
-public:
-	// <DO-NOT-MODIFY> {
+   private:
+    HashTable hashTable;
+    StrTree strTree;
+
+   public:
+    // <DO-NOT-MODIFY> {
 
     olympics_t();
 
-	virtual ~olympics_t();
+    virtual ~olympics_t();
 
     StatusType add_team(int teamId);
 
@@ -47,8 +48,8 @@ public:
     StatusType unite_teams(int teamId1, int teamId2);
 
     output_t<int> play_tournament(int lowPower, int highPower);
-	
-	// } </DO-NOT-MODIFY>
+
+    // } </DO-NOT-MODIFY>
 };
 
-#endif // OLYMPICSA2_H_
+#endif  // OLYMPICSA2_H_

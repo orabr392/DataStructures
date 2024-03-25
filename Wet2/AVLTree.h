@@ -576,6 +576,16 @@ class AVLTree {
         target->rightNode = newNode;
     }
 
+    void updateTreePostOrder(AVLNode<dataType1, dataType2>* node) {
+        if (node == nullptr) {
+            return;
+        }
+
+        updateTreePostOrder(node->leftNode);
+        updateTreePostOrder(node->rightNode);
+        updateNodeParameters(node);
+    }
+
     /*
      *  updateNodeParameters: Update the parameters of the node,
      *                         Such as height, heightLeft, heightRight, BF and
@@ -941,6 +951,7 @@ class AVLTree {
 
     AVLNode<dataType1, dataType2>* getRoot() const { return root; }
     void setRoot(AVLNode<dataType1, dataType2>* node) { root = node; }
+    void setTreeSize(int newTreeSize) { treeSize = newTreeSize; }
 };
 
 #endif
