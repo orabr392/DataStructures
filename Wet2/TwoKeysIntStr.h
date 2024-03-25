@@ -3,20 +3,21 @@
 
 #include <iostream>
 
-class TwoKeysInt {
+class TwoKeysIntStr {
    public:
     int key1;
     int key2;
-    TwoKeysInt();
-    TwoKeysInt(int key1, int key2);
-    ~TwoKeysInt();
-    bool operator==(const TwoKeysInt key);
-    bool operator>(const TwoKeysInt key);
-    bool operator<(const TwoKeysInt key);
-    bool operator<=(const TwoKeysInt key);
-    bool operator>=(const TwoKeysInt key);
-    bool operator!=(const TwoKeysInt key);
-    friend std::ostream& operator<<(std::ostream& os, const TwoKeysInt key);
+    TwoKeysIntStr();
+    TwoKeysIntStr(int key1, int key2);
+    ~TwoKeysIntStr();
+    bool operator==(const TwoKeysIntStr key);
+    bool operator>(const TwoKeysIntStr key);
+    bool operator<(const TwoKeysIntStr key);
+    bool operator<=(const TwoKeysIntStr key);
+    bool operator>=(const TwoKeysIntStr key);
+    bool operator!=(const TwoKeysIntStr key);
+    friend std::ostream& operator<<(std::ostream& os,
+                                    const TwoKeysIntStr key);
 };
 
 #endif
