@@ -13,14 +13,14 @@ StrTree::StrTree() {
  * Constructor with arguments
  */
 
-StrTree::StrTree(StrNode<TwoKeysInt>* newRoot, int size) {
+StrTree::StrTree(StrNode<TwoKeysIntStr>* newRoot, int size) {
     root = newRoot;
     treeSize = size;
 }
 
 StrTree::StrTree(int height) {
     if (height >= 0) {
-        root = new StrNode<TwoKeysInt>();
+        root = new StrNode<TwoKeysIntStr>();
 
         root->leftNode = createEmptyTreeAux(root, height - 1, true, false);
         root->rightNode = createEmptyTreeAux(root, height - 1, false, true);
@@ -53,7 +53,7 @@ StrTree::~StrTree() {
  * internal node
  */
 
-void StrTree::destroy(StrNode<TwoKeysInt>* node) {
+void StrTree::destroy(StrNode<TwoKeysIntStr>* node) {
     if (node != nullptr) {
         destroy(node->leftNode);
         destroy(node->rightNode);
@@ -77,12 +77,12 @@ void StrTree::disconnectRoot() {
  *
  */
 
-StrNode<TwoKeysInt>* StrTree::search(TwoKeysInt key) {
+StrNode<TwoKeysIntStr>* StrTree::search(TwoKeysIntStr key) {
     // Check if the tree is empty
     if (root == nullptr) return nullptr;
 
-    StrNode<TwoKeysInt>* temp = root;
-    StrNode<TwoKeysInt>* parent;
+    StrNode<TwoKeysIntStr>* temp = root;
+    StrNode<TwoKeysIntStr>* parent;
     while (temp != nullptr) {
         parent = temp;
         // Return the node
@@ -99,12 +99,12 @@ StrNode<TwoKeysInt>* StrTree::search(TwoKeysInt key) {
     return parent;
 }
 
-StrNode<TwoKeysInt>* StrTree::search(TwoKeysInt key, int* sumExtras) {
+StrNode<TwoKeysIntStr>* StrTree::search(TwoKeysIntStr key, int* sumExtras) {
     // Check if the tree is empty
     if (root == nullptr) return nullptr;
 
-    StrNode<TwoKeysInt>* temp = root;
-    StrNode<TwoKeysInt>* parent;
+    StrNode<TwoKeysIntStr>* temp = root;
+    StrNode<TwoKeysIntStr>* parent;
     while (temp != nullptr) {
         parent = temp;
         // Return the node
@@ -129,7 +129,7 @@ StrNode<TwoKeysInt>* StrTree::search(TwoKeysInt key, int* sumExtras) {
  *  @param key - The unique key of the node
  *  @return - The rank of the node
  */
-int StrTree::findIndex(TwoKeysInt key) {
+int StrTree::findIndex(TwoKeysIntStr key) {
     // Check if the tree is empty or the node doesn't exist
     if (!nodeExists(key)) {
         return 0;
@@ -137,7 +137,7 @@ int StrTree::findIndex(TwoKeysInt key) {
 
     int rank = 0;
     int leftWeight;
-    StrNode<TwoKeysInt>* temp = root;
+    StrNode<TwoKeysIntStr>* temp = root;
     while (temp->key != key) {
         // Traverse the correct direction
         if (key < temp->key) {
@@ -160,12 +160,12 @@ int StrTree::findIndex(TwoKeysInt key) {
     return rank + leftWeight + 1;
 }
 
-StrNode<TwoKeysInt>* StrTree::getNodeByRank(int rank) {
+StrNode<TwoKeysIntStr>* StrTree::getNodeByRank(int rank) {
     // Check that the tree contains a node with corresponding rank
     if (rank <= 0 || rank > treeSize) {
         return nullptr;
     }
-    StrNode<TwoKeysInt>* target = root;
+    StrNode<TwoKeysIntStr>* target = root;
     int leftWeight;
     while (target != nullptr) {
         if (target->leftNode == nullptr) {
@@ -196,8 +196,8 @@ StrNode<TwoKeysInt>* StrTree::getNodeByRank(int rank) {
  *  false - There doesnt exists a node with this key
  */
 
-bool StrTree::nodeExists(TwoKeysInt key) {
-    StrNode<TwoKeysInt>* node = search(key);
+bool StrTree::nodeExists(TwoKeysIntStr key) {
+    StrNode<TwoKeysIntStr>* node = search(key);
     if (node == nullptr) {
         return false;
     }
@@ -232,16 +232,16 @@ bool StrTree::isTreeEmpty() {
  *  false - The new node was not added, perhaps it already existed
  */
 
-bool StrTree::insert(TwoKeysInt key, int data, int medals) {
+bool StrTree::insert(TwoKeysIntStr key, int data, int medals) {
     if (root == nullptr) {
-        root = new StrNode<TwoKeysInt>(key, data);
+        root = new StrNode<TwoKeysIntStr>(key, data);
         root->medals = medals;
 
         treeSize++;
         return true;
     }
     int sumExtras = 0;
-    StrNode<TwoKeysInt>* target = search(key, &sumExtras);
+    StrNode<TwoKeysIntStr>* target = search(key, &sumExtras);
 
     // Check if the key already exists in the tree
     if (key == target->key) {
@@ -302,9 +302,9 @@ bool StrTree::insert(TwoKeysInt key, int data, int medals) {
  *  false - Did not manage to remove the node, perhaps it did not exist
  */
 
-bool StrTree::remove(TwoKeysInt key) {
+bool StrTree::remove(TwoKeysIntStr key) {
     int sumExtras = 0;
-    StrNode<TwoKeysInt>* toBeRemoved = search(key, &sumExtras);
+    StrNode<TwoKeysIntStr>* toBeRemoved = search(key, &sumExtras);
     if (toBeRemoved == nullptr)
         return false;
     else if (toBeRemoved->key != key) {
@@ -313,11 +313,11 @@ bool StrTree::remove(TwoKeysInt key) {
 
     // toBeRemoved has 2 children
     if (toBeRemoved->heightLeft >= 0 && toBeRemoved->heightRight >= 0) {
-        StrNode<TwoKeysInt>* nextNode = findNextNode(toBeRemoved);
+        StrNode<TwoKeysIntStr>* nextNode = findNextNode(toBeRemoved);
         swapTwoNodes(toBeRemoved, nextNode);
     }
 
-    StrNode<TwoKeysInt>* parent = toBeRemoved->parentNode;
+    StrNode<TwoKeysIntStr>* parent = toBeRemoved->parentNode;
     // If toBeRemoved is a leaf
     if (toBeRemoved->height == 0) {
         if (!removeLeaf(toBeRemoved)) return false;
@@ -328,7 +328,7 @@ bool StrTree::remove(TwoKeysInt key) {
         if (!removeSingleChild(toBeRemoved)) return false;
     }
 
-    StrNode<TwoKeysInt>* tempNode = parent;
+    StrNode<TwoKeysIntStr>* tempNode = parent;
     updateNodeParameters(tempNode);
     while (tempNode != nullptr) {
         if (tempNode->balanceFactor == 2 || tempNode->balanceFactor == -2) {
@@ -360,8 +360,8 @@ bool StrTree::remove(TwoKeysInt key) {
  *  false - Did not manage to remove the node, perhaps it did not exist
  */
 
-bool StrTree::removeLeaf(StrNode<TwoKeysInt>* target) {
-    StrNode<TwoKeysInt>* parent = target->parentNode;
+bool StrTree::removeLeaf(StrNode<TwoKeysIntStr>* target) {
+    StrNode<TwoKeysIntStr>* parent = target->parentNode;
     // target is also the root
     if (parent == nullptr) {
         root = nullptr;
@@ -397,8 +397,8 @@ bool StrTree::removeLeaf(StrNode<TwoKeysInt>* target) {
  *  false - Did not manage to remove the node, perhaps it did not exist
  */
 
-bool StrTree::removeSingleChild(StrNode<TwoKeysInt>* target) {
-    StrNode<TwoKeysInt>* parent = target->parentNode;
+bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target) {
+    StrNode<TwoKeysIntStr>* parent = target->parentNode;
     int extra = target->extra;
     // target has a single child on the right
     if (target->heightLeft == -1 && target->heightRight >= 0) {
@@ -482,7 +482,7 @@ bool StrTree::removeSingleChild(StrNode<TwoKeysInt>* target) {
  * 	StrNode* - The next node in the tree
  */
 
-StrNode<TwoKeysInt>* StrTree::findNextNode(StrNode<TwoKeysInt>* node) {
+StrNode<TwoKeysIntStr>* StrTree::findNextNode(StrNode<TwoKeysIntStr>* node) {
     node = node->rightNode;
     while (node->leftNode != nullptr) {
         node = node->leftNode;
@@ -497,10 +497,11 @@ StrNode<TwoKeysInt>* StrTree::findNextNode(StrNode<TwoKeysInt>* node) {
  * @param v2 - The second node
  */
 
-void StrTree::swapTwoNodes(StrNode<TwoKeysInt>* v1, StrNode<TwoKeysInt>* v2) {
-    StrNode<TwoKeysInt>* leftNodeV1 = v1->leftNode;
-    StrNode<TwoKeysInt>* rightNodeV1 = v1->rightNode;
-    StrNode<TwoKeysInt>* parentNodeV1 = v1->parentNode;
+void StrTree::swapTwoNodes(StrNode<TwoKeysIntStr>* v1,
+                           StrNode<TwoKeysIntStr>* v2) {
+    StrNode<TwoKeysIntStr>* leftNodeV1 = v1->leftNode;
+    StrNode<TwoKeysIntStr>* rightNodeV1 = v1->rightNode;
+    StrNode<TwoKeysIntStr>* parentNodeV1 = v1->parentNode;
 
     if (v1->rightNode == v2) {
         v1->rightNode = v2->rightNode;
@@ -569,9 +570,10 @@ void StrTree::swapTwoNodes(StrNode<TwoKeysInt>* v1, StrNode<TwoKeysInt>* v2) {
  * @param data - The data of the new node
  */
 
-void StrTree::insertLeftNaive(StrNode<TwoKeysInt>* target, TwoKeysInt key,
-                              int data, int sumExtras, int medals) {
-    StrNode<TwoKeysInt>* newNode = new StrNode<TwoKeysInt>(key, data);
+void StrTree::insertLeftNaive(StrNode<TwoKeysIntStr>* target,
+                              TwoKeysIntStr key, int data, int sumExtras,
+                              int medals) {
+    StrNode<TwoKeysIntStr>* newNode = new StrNode<TwoKeysIntStr>(key, data);
     newNode->medals = medals - sumExtras;
 
     newNode->isLeftChild = true;
@@ -588,9 +590,10 @@ void StrTree::insertLeftNaive(StrNode<TwoKeysInt>* target, TwoKeysInt key,
  * @param data - The data of the new node
  */
 
-void StrTree::insertRightNaive(StrNode<TwoKeysInt>* target, TwoKeysInt key,
-                               int data, int sumExtras, int medals) {
-    StrNode<TwoKeysInt>* newNode = new StrNode<TwoKeysInt>(key, data);
+void StrTree::insertRightNaive(StrNode<TwoKeysIntStr>* target,
+                               TwoKeysIntStr key, int data, int sumExtras,
+                               int medals) {
+    StrNode<TwoKeysIntStr>* newNode = new StrNode<TwoKeysIntStr>(key, data);
     newNode->medals = medals - sumExtras;
 
     newNode->isRightChild = true;
@@ -606,7 +609,7 @@ void StrTree::insertRightNaive(StrNode<TwoKeysInt>* target, TwoKeysInt key,
  * @param target - The node to update its parameters
  */
 
-void StrTree::updateNodeParameters(StrNode<TwoKeysInt>* target) {
+void StrTree::updateNodeParameters(StrNode<TwoKeysIntStr>* target) {
     // Check that the target is not empty
     if (target == nullptr) return;
 
@@ -645,7 +648,7 @@ void StrTree::updateNodeParameters(StrNode<TwoKeysInt>* target) {
     target->weight = targetWeight;
 }
 
-void StrTree::updateNodeParameters(StrNode<TwoKeysInt>* target,
+void StrTree::updateNodeParameters(StrNode<TwoKeysIntStr>* target,
                                    int sumExtras) {
     // Check that the target is not empty
     if (target == nullptr) return;
@@ -693,9 +696,9 @@ void StrTree::updateNodeParameters(StrNode<TwoKeysInt>* target,
  * @param node - The node to roll from
  */
 
-void StrTree::rollRight(StrNode<TwoKeysInt>* node) {
-    StrNode<TwoKeysInt>* temp = node->leftNode;
-    StrNode<TwoKeysInt>* tempRight = temp->rightNode;
+void StrTree::rollRight(StrNode<TwoKeysIntStr>* node) {
+    StrNode<TwoKeysIntStr>* temp = node->leftNode;
+    StrNode<TwoKeysIntStr>* tempRight = temp->rightNode;
 
     // Change the extra of temp to be e_b - e_a
     node->extra = node->extra - temp->extra;
@@ -711,7 +714,7 @@ void StrTree::rollRight(StrNode<TwoKeysInt>* node) {
     temp->rightNode = node;
     updateNodeParameters(temp);
 
-    StrNode<TwoKeysInt>* parent = node->parentNode;
+    StrNode<TwoKeysIntStr>* parent = node->parentNode;
     // Update nodes parent that his child is now temp and not node
     if (parent != nullptr) {
         if (node->isLeftChild) {
@@ -742,9 +745,9 @@ void StrTree::rollRight(StrNode<TwoKeysInt>* node) {
  * @param node - The node to roll from
  */
 
-void StrTree::rollLeft(StrNode<TwoKeysInt>* node) {
-    StrNode<TwoKeysInt>* temp = node->rightNode;
-    StrNode<TwoKeysInt>* tempLeft = temp->leftNode;
+void StrTree::rollLeft(StrNode<TwoKeysIntStr>* node) {
+    StrNode<TwoKeysIntStr>* temp = node->rightNode;
+    StrNode<TwoKeysIntStr>* tempLeft = temp->leftNode;
 
     // Change the extra of temp to be e_b - e_a
     node->extra = node->extra + temp->extra;
@@ -760,7 +763,7 @@ void StrTree::rollLeft(StrNode<TwoKeysInt>* node) {
     temp->leftNode = node;
     updateNodeParameters(temp);
 
-    StrNode<TwoKeysInt>* parent = node->parentNode;
+    StrNode<TwoKeysIntStr>* parent = node->parentNode;
     // Update nodes parent that his child is now temp and not node
     if (parent != nullptr) {
         if (node->isLeftChild) {
@@ -792,8 +795,8 @@ void StrTree::rollLeft(StrNode<TwoKeysInt>* node) {
  * @param node - The node to roll from
  */
 
-bool StrTree::rollNode(StrNode<TwoKeysInt>* node) {
-    StrNode<TwoKeysInt>* tempNode;
+bool StrTree::rollNode(StrNode<TwoKeysIntStr>* node) {
+    StrNode<TwoKeysIntStr>* tempNode;
     if (node->balanceFactor == 2) {
         tempNode = node->leftNode;
         if (tempNode->balanceFactor >= 0) {
@@ -841,8 +844,8 @@ void StrTree::printInOrder() { printInOrderAux(root); }
  *   S* - A pointer to the right most node
  */
 
-StrNode<TwoKeysInt>* StrTree::getRightMostNode() {
-    StrNode<TwoKeysInt>* temp = root;
+StrNode<TwoKeysIntStr>* StrTree::getRightMostNode() {
+    StrNode<TwoKeysIntStr>* temp = root;
     if (temp == nullptr) return nullptr;
     while (temp->rightNode != nullptr) temp = temp->rightNode;
     // return new S(temp->data);
@@ -857,8 +860,8 @@ StrNode<TwoKeysInt>* StrTree::getRightMostNode() {
  *   S* - A pointer to the left most node
  */
 
-StrNode<TwoKeysInt>* StrTree::getLeftMostNode() {
-    StrNode<TwoKeysInt>* temp = root;
+StrNode<TwoKeysIntStr>* StrTree::getLeftMostNode() {
+    StrNode<TwoKeysIntStr>* temp = root;
     if (temp == nullptr) return nullptr;
     while (temp->leftNode != nullptr) temp = temp->leftNode;
     // return new S(temp->data);
@@ -871,7 +874,7 @@ StrNode<TwoKeysInt>* StrTree::getLeftMostNode() {
  * @param node - The node to print from
  */
 
-void StrTree::printInOrderAux(StrNode<TwoKeysInt>* node) {
+void StrTree::printInOrderAux(StrNode<TwoKeysIntStr>* node) {
     if (node == nullptr) return;
 
     printInOrderAux(node->leftNode);
@@ -889,8 +892,8 @@ int StrTree::getTreeSize() { return treeSize; }
  *          int
  */
 
-static int inorderToArray(StrNode<TwoKeysInt>* root, StrNode<TwoKeysInt>* arr,
-                          int arrSize, int i) {
+static int inorderToArray(StrNode<TwoKeysIntStr>* root,
+                          StrNode<TwoKeysIntStr>* arr, int arrSize, int i) {
     if (root == nullptr) return i;
 
     i = inorderToArray(root->leftNode, arr, arrSize, i);
@@ -908,7 +911,7 @@ static int inorderToArray(StrNode<TwoKeysInt>* root, StrNode<TwoKeysInt>* arr,
  *          int
  */
 
-int inorderToTree(StrNode<TwoKeysInt>* node, StrNode<TwoKeysInt>* arr,
+int inorderToTree(StrNode<TwoKeysIntStr>* node, StrNode<TwoKeysIntStr>* arr,
                   int arrSize, int i) {
     if (node == nullptr) return i;
 
@@ -931,14 +934,15 @@ int inorderToTree(StrNode<TwoKeysInt>* node, StrNode<TwoKeysInt>* arr,
 
 void combineStrTrees(StrTree& newTree, StrTree& tree1, StrTree& tree2) {
     int size1 = tree1.getTreeSize(), size2 = tree2.getTreeSize();
-    StrNode<TwoKeysInt>* arrTree1 = new StrNode<TwoKeysInt>[size1];
+    StrNode<TwoKeysIntStr>* arrTree1 = new StrNode<TwoKeysIntStr>[size1];
 
-    StrNode<TwoKeysInt>* arrTree2 = new StrNode<TwoKeysInt>[size2];
+    StrNode<TwoKeysIntStr>* arrTree2 = new StrNode<TwoKeysIntStr>[size2];
 
     inorderToArray(tree1.getRoot(), arrTree1, size1, 0);
     inorderToArray(tree2.getRoot(), arrTree2, size2, 0);
 
-    StrNode<TwoKeysInt>* newArr = new StrNode<TwoKeysInt>[size1 + size2];
+    StrNode<TwoKeysIntStr>* newArr =
+        new StrNode<TwoKeysIntStr>[size1 + size2];
 
     int i, j, k;
     for (i = 0, j = 0, k = 0; i < size1 && j < size2 && k < size1 + size2;) {
@@ -967,11 +971,11 @@ void combineStrTrees(StrTree& newTree, StrTree& tree1, StrTree& tree2) {
  *          StrNode<T>*
  */
 
-StrNode<TwoKeysInt>* StrTree::createEmptyTreeAux(
-    StrNode<TwoKeysInt>* parentNode, int height, bool isLeftChild,
+StrNode<TwoKeysIntStr>* StrTree::createEmptyTreeAux(
+    StrNode<TwoKeysIntStr>* parentNode, int height, bool isLeftChild,
     bool isRightChild) {
     if (height < 0) return nullptr;
-    StrNode<TwoKeysInt>* node = new StrNode<TwoKeysInt>();
+    StrNode<TwoKeysIntStr>* node = new StrNode<TwoKeysIntStr>();
 
     node->isLeftChild = isLeftChild;
     node->isRightChild = isRightChild;
@@ -991,7 +995,7 @@ StrNode<TwoKeysInt>* StrTree::createEmptyTreeAux(
  *          void
  */
 
-void StrTree::adjustTreeSize(StrNode<TwoKeysInt>* node, int* toDelete) {
+void StrTree::adjustTreeSize(StrNode<TwoKeysIntStr>* node, int* toDelete) {
     if (node == nullptr || *toDelete <= 0) return;
     adjustTreeSize(node->rightNode, toDelete);
     if (node->rightNode == nullptr && node->leftNode == nullptr) {
@@ -1009,8 +1013,8 @@ void StrTree::adjustTreeSize(StrNode<TwoKeysInt>* node, int* toDelete) {
         adjustTreeSize(node->leftNode, toDelete);
 }
 
-StrNode<TwoKeysInt>* StrTree::getRoot() { return root; }
-void StrTree::setRoot(StrNode<TwoKeysInt>* node) { root = node; }
+StrNode<TwoKeysIntStr>* StrTree::getRoot() { return root; }
+void StrTree::setRoot(StrNode<TwoKeysIntStr>* node) { root = node; }
 
 void StrTree::Add(int endIndex, int value) {
     bool turnedRight = false;
@@ -1019,7 +1023,7 @@ void StrTree::Add(int endIndex, int value) {
     if (endIndex <= 0 || endIndex > treeSize) {
         return;
     }
-    StrNode<TwoKeysInt>* target = root;
+    StrNode<TwoKeysIntStr>* target = root;
     int leftWeight;
     while (target != nullptr) {
         if (target->leftNode == nullptr) {
