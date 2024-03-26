@@ -23,64 +23,47 @@ void print(string cmd, output_t<int> res);
 int main() {
     // Init
     olympics_t* obj = new olympics_t();
-    obj->add_team(1);
-    obj->add_team(2);
-    obj->add_player(1, 10);
-    obj->add_player(1, 1);
-    obj->add_player(1, 2);
-    obj->add_player(1, 3);
-    obj->add_player(2, 10);
-    obj->add_player(2, 2);
-    obj->add_player(2, 19);
-    obj->add_player(2, 1);
-    print("play_match", obj->play_match(1, 2));
-    obj->unite_teams(1, 2);
-    obj->remove_newest_player(1);
-    obj->remove_newest_player(1);
-    print("play_match", obj->play_match(1, 2));
-    obj->remove_team(2);
 
-    // int d1, d2;
-    // // Execute all commands in file
-    // string op;
-    // while (cin >> op)
-    // {
-    //     if (!op.compare("add_team")) {
-    //         cin >> d1;
-    //         print(op, obj->add_team(d1));
-    //     } else if (!op.compare("remove_team")) {
-    //         cin >> d1;
-    //         print(op, obj->remove_team(d1));
-    //     } else if (!op.compare("add_player")) {
-    //         cin >> d1 >> d2;
-    //         print(op, obj->add_player(d1, d2));
-    //     } else if (!op.compare("remove_newest_player")) {
-    //         cin >> d1;
-    //         print(op, obj->remove_newest_player(d1));
-    //     } else if (!op.compare("play_match")) {
-    //         cin >> d1 >> d2;
-    //         print(op, obj->play_match(d1, d2));
-    //     } else if (!op.compare("num_wins_for_team")) {
-    //         cin >> d1;
-    //         print(op, obj->num_wins_for_team(d1));
-    //     } else if (!op.compare("get_highest_ranked_team")) {
-    //         print(op, obj->get_highest_ranked_team());
-    //     } else if (!op.compare("unite_teams")) {
-    //         cin >> d1 >> d2;
-    //         print(op, obj->unite_teams(d1, d2));
-    //     } else if (!op.compare("play_tournament")) {
-    //         cin >> d1 >> d2;
-    //         print(op, obj->play_tournament(d1, d2));
-    //     } else {
-    //         cout << "Unknown command: " << op << endl;
-    //         return -1;
-    //     }
-    //     // Verify no faults
-    //     if (cin.fail()){
-    //         cout << "Invalid input format" << endl;
-    //         return -1;
-    //     }
-    // }
+    int d1, d2;
+    // Execute all commands in file
+    string op;
+    while (cin >> op) {
+        if (!op.compare("add_team")) {
+            cin >> d1;
+            print(op, obj->add_team(d1));
+        } else if (!op.compare("remove_team")) {
+            cin >> d1;
+            print(op, obj->remove_team(d1));
+        } else if (!op.compare("add_player")) {
+            cin >> d1 >> d2;
+            print(op, obj->add_player(d1, d2));
+        } else if (!op.compare("remove_newest_player")) {
+            cin >> d1;
+            print(op, obj->remove_newest_player(d1));
+        } else if (!op.compare("play_match")) {
+            cin >> d1 >> d2;
+            print(op, obj->play_match(d1, d2));
+        } else if (!op.compare("num_wins_for_team")) {
+            cin >> d1;
+            print(op, obj->num_wins_for_team(d1));
+        } else if (!op.compare("get_highest_ranked_team")) {
+            print(op, obj->get_highest_ranked_team());
+        } else if (!op.compare("unite_teams")) {
+            cin >> d1 >> d2;
+            print(op, obj->unite_teams(d1, d2));
+        } else if (!op.compare("play_tournament")) {
+            cin >> d1 >> d2;
+            print(op, obj->play_tournament(d1, d2));
+        } else {
+            cout << "Unknown command: " << op << endl;
+            return -1;
+        }
+        // Verify no faults
+        if (cin.fail()) {
+            cout << "Invalid input format" << endl;
+            return -1;
+        }
+    }
 
     // Quit
     delete obj;

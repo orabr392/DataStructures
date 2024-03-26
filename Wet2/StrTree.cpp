@@ -106,17 +106,16 @@ StrNode<TwoKeysIntStr>* StrTree::search(TwoKeysIntStr key, int* sumExtras) {
     StrNode<TwoKeysIntStr>* temp = root;
     StrNode<TwoKeysIntStr>* parent;
     while (temp != nullptr) {
+        *sumExtras += temp->extra;
         parent = temp;
         // Return the node
         if (key == temp->key) {
-            *sumExtras += temp->extra;
             return temp;
         }
         // Traverse the correct direction
         else if (key < temp->key) {
             temp = temp->leftNode;
         } else {
-            *sumExtras += temp->extra;
             temp = temp->rightNode;
         }
     }
@@ -160,7 +159,7 @@ int StrTree::findIndex(TwoKeysIntStr key) {
     return rank + leftWeight + 1;
 }
 
-StrNode<TwoKeysIntStr>* StrTree::getNodeByRank(int rank) {
+StrNode<TwoKeysIntStr>* StrTree::getNodeByRank(int rank, int* sumExtras) {
     // Check that the tree contains a node with corresponding rank
     if (rank <= 0 || rank > treeSize) {
         return nullptr;
@@ -168,6 +167,7 @@ StrNode<TwoKeysIntStr>* StrTree::getNodeByRank(int rank) {
     StrNode<TwoKeysIntStr>* target = root;
     int leftWeight;
     while (target != nullptr) {
+        *sumExtras += target->extra;
         if (target->leftNode == nullptr) {
             leftWeight = 0;
         } else {
@@ -236,6 +236,7 @@ bool StrTree::insert(TwoKeysIntStr key, int data, int medals) {
     if (root == nullptr) {
         root = new StrNode<TwoKeysIntStr>(key, data);
         root->medals = medals;
+        root->maxRank = data + medals;
 
         treeSize++;
         return true;
@@ -262,9 +263,7 @@ bool StrTree::insert(TwoKeysIntStr key, int data, int medals) {
     // Traverse upwards and update parameters until you need to roll
     while (target != nullptr && target->balanceFactor != 2 &&
            target->balanceFactor != -2) {
-        if (target->isRightChild) {
-            sumExtras -= target->extra;
-        }
+        sumExtras -= target->extra;
         target = target->parentNode;
         updateNodeParameters(target, sumExtras);
     }
@@ -272,7 +271,7 @@ bool StrTree::insert(TwoKeysIntStr key, int data, int medals) {
     // Roll accordingly
     if (target != nullptr &&
         (target->balanceFactor == 2 || target->balanceFactor == -2)) {
-        rollNode(target);
+        rollNode(target, sumExtras);
     }
     treeSize++;
 
@@ -285,9 +284,8 @@ bool StrTree::insert(TwoKeysIntStr key, int data, int medals) {
     // Go up the search route and update the parameters
     while (target != nullptr) {
         updateNodeParameters(target, sumExtras);
-        if (target->isRightChild) {
-            sumExtras -= target->extra;
-        }
+        sumExtras -= target->extra;
+
         target = target->parentNode;
     }
     return true;
@@ -313,41 +311,37 @@ bool StrTree::remove(TwoKeysIntStr key) {
 
     // toBeRemoved has 2 children
     if (toBeRemoved->heightLeft >= 0 && toBeRemoved->heightRight >= 0) {
-        StrNode<TwoKeysIntStr>* nextNode = findNextNode(toBeRemoved);
-        swapTwoNodes(toBeRemoved, nextNode);
+        int sumExtrasV1 = sumExtras;
+        StrNode<TwoKeysIntStr>* nextNode =
+            findNextNode(toBeRemoved, &sumExtras);
+        int sumExtrasV2 = sumExtras;
+        swapTwoNodes(toBeRemoved, nextNode, sumExtrasV1, sumExtrasV2);
     }
 
     StrNode<TwoKeysIntStr>* parent = toBeRemoved->parentNode;
     // If toBeRemoved is a leaf
     if (toBeRemoved->height == 0) {
-        if (!removeLeaf(toBeRemoved)) return false;
+        if (!removeLeaf(toBeRemoved, &sumExtras)) return false;
     }
     // toBeRemoved has a single child
     else if (toBeRemoved->height > 0 && (toBeRemoved->heightLeft == -1 ||
                                          toBeRemoved->heightRight == -1)) {
-        if (!removeSingleChild(toBeRemoved)) return false;
+        if (!removeSingleChild(toBeRemoved, &sumExtras)) return false;
     }
 
     StrNode<TwoKeysIntStr>* tempNode = parent;
-    updateNodeParameters(tempNode);
+    updateNodeParameters(tempNode, sumExtras);
     while (tempNode != nullptr) {
         if (tempNode->balanceFactor == 2 || tempNode->balanceFactor == -2) {
-            if (!rollNode(tempNode)) return false;
+            if (!rollNode(tempNode, sumExtras)) return false;
         }
+        sumExtras -= tempNode->extra;
         tempNode = tempNode->parentNode;
-        updateNodeParameters(tempNode);
+        updateNodeParameters(tempNode, sumExtras);
     }
     treeSize--;
 
-    // Go up the search route from parent to root
-    while (parent != nullptr) {
-        updateNodeParameters(parent, sumExtras);
-        if (parent->isRightChild) {
-            sumExtras -= parent->extra;
-        }
-
-        parent = parent->parentNode;
-    }
+    // Maybe need to update the whole route again?
     return true;
 }
 
@@ -360,8 +354,9 @@ bool StrTree::remove(TwoKeysIntStr key) {
  *  false - Did not manage to remove the node, perhaps it did not exist
  */
 
-bool StrTree::removeLeaf(StrNode<TwoKeysIntStr>* target) {
+bool StrTree::removeLeaf(StrNode<TwoKeysIntStr>* target, int* sumExtras) {
     StrNode<TwoKeysIntStr>* parent = target->parentNode;
+    *sumExtras -= target->extra;
     // target is also the root
     if (parent == nullptr) {
         root = nullptr;
@@ -372,12 +367,12 @@ bool StrTree::removeLeaf(StrNode<TwoKeysIntStr>* target) {
     } else {
         if (target->isLeftChild) {
             parent->leftNode = nullptr;
-            updateNodeParameters(parent);
+            updateNodeParameters(parent, *sumExtras);
 
             destroy(target);
         } else if (target->isRightChild) {
             parent->rightNode = nullptr;
-            updateNodeParameters(parent);
+            updateNodeParameters(parent, *sumExtras);
 
             destroy(target);
         } else {
@@ -397,14 +392,15 @@ bool StrTree::removeLeaf(StrNode<TwoKeysIntStr>* target) {
  *  false - Did not manage to remove the node, perhaps it did not exist
  */
 
-bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target) {
+bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target,
+                                int* sumExtras) {
     StrNode<TwoKeysIntStr>* parent = target->parentNode;
+    *sumExtras -= target->extra;
     int extra = target->extra;
     // target has a single child on the right
     if (target->heightLeft == -1 && target->heightRight >= 0) {
         target->rightNode->extra += extra;
-        target->rightNode->medals -= extra;
-
+        target->rightNode->maxRank = target->maxRank;
         // target is also the root
         if (parent == nullptr) {
             root = target->rightNode;
@@ -419,14 +415,14 @@ bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target) {
                 parent->leftNode = target->rightNode;
                 target->rightNode->parentNode = parent;
                 target->rightNode = nullptr;
-                updateNodeParameters(parent);
+                updateNodeParameters(parent, *sumExtras);
 
                 destroy(target);
             } else if (target->isRightChild) {
                 parent->rightNode = target->rightNode;
                 target->rightNode->parentNode = parent;
                 target->rightNode = nullptr;
-                updateNodeParameters(parent);
+                updateNodeParameters(parent, *sumExtras);
 
                 destroy(target);
             } else {
@@ -439,8 +435,7 @@ bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target) {
     // target has a single child on the left
     else if (target->heightLeft >= 0 && target->heightRight == -1) {
         target->leftNode->extra += extra;
-        target->leftNode->medals -= extra;
-
+        target->leftNode->maxRank = target->maxRank;
         // target is also the root
         if (parent == nullptr) {
             root = target->leftNode;
@@ -455,13 +450,13 @@ bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target) {
                 parent->leftNode = target->leftNode;
                 target->leftNode->parentNode = parent;
                 target->leftNode = nullptr;
-                updateNodeParameters(parent);
+                updateNodeParameters(parent, *sumExtras);
                 destroy(target);
             } else if (target->isRightChild) {
                 parent->rightNode = target->leftNode;
                 target->leftNode->parentNode = parent;
                 target->leftNode = nullptr;
-                updateNodeParameters(parent);
+                updateNodeParameters(parent, *sumExtras);
 
                 destroy(target);
             } else {
@@ -482,10 +477,15 @@ bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target) {
  * 	StrNode* - The next node in the tree
  */
 
-StrNode<TwoKeysIntStr>* StrTree::findNextNode(StrNode<TwoKeysIntStr>* node) {
+StrNode<TwoKeysIntStr>* StrTree::findNextNode(StrNode<TwoKeysIntStr>* node,
+                                              int* sumExtras) {
     node = node->rightNode;
+    *sumExtras += node->extra;
     while (node->leftNode != nullptr) {
         node = node->leftNode;
+        if (node->leftNode != nullptr) {
+            *sumExtras += node->extra;
+        }
     }
     return node;
 }
@@ -498,7 +498,8 @@ StrNode<TwoKeysIntStr>* StrTree::findNextNode(StrNode<TwoKeysIntStr>* node) {
  */
 
 void StrTree::swapTwoNodes(StrNode<TwoKeysIntStr>* v1,
-                           StrNode<TwoKeysIntStr>* v2) {
+                           StrNode<TwoKeysIntStr>* v2, int sumExtrasV1,
+                           int sumExtrasV2) {
     StrNode<TwoKeysIntStr>* leftNodeV1 = v1->leftNode;
     StrNode<TwoKeysIntStr>* rightNodeV1 = v1->rightNode;
     StrNode<TwoKeysIntStr>* parentNodeV1 = v1->parentNode;
@@ -554,11 +555,15 @@ void StrTree::swapTwoNodes(StrNode<TwoKeysIntStr>* v1,
     if (v2->rightNode != nullptr) {
         v2->rightNode->parentNode = v2;
     }
+    v2->medals += (v2->extra - v1->extra);
     int tempExtra = v1->extra;
     v1->extra = v2->extra;
     v2->extra = tempExtra;
-    updateNodeParameters(v1);
-    updateNodeParameters(v2);
+    int tempMaxRank = v1->maxRank;
+    v1->maxRank = v2->maxRank;
+    v2->maxRank = v1->maxRank;
+    updateNodeParameters(v1, sumExtrasV2);
+    updateNodeParameters(v2, sumExtrasV1);
 }
 
 /*
@@ -575,7 +580,7 @@ void StrTree::insertLeftNaive(StrNode<TwoKeysIntStr>* target,
                               int medals) {
     StrNode<TwoKeysIntStr>* newNode = new StrNode<TwoKeysIntStr>(key, data);
     newNode->medals = medals - sumExtras;
-
+    newNode->maxRank = data + medals;
     newNode->isLeftChild = true;
     newNode->parentNode = target;
     target->leftNode = newNode;
@@ -595,13 +600,14 @@ void StrTree::insertRightNaive(StrNode<TwoKeysIntStr>* target,
                                int medals) {
     StrNode<TwoKeysIntStr>* newNode = new StrNode<TwoKeysIntStr>(key, data);
     newNode->medals = medals - sumExtras;
-
+    newNode->maxRank = data + medals;
     newNode->isRightChild = true;
     newNode->parentNode = target;
     target->rightNode = newNode;
 }
 
 /*
+ *  Currently Deprecated
  *  updateNodeParameters: Update the parameters of the node,
  *                         Such as height, heightLeft, heightRight, BF and
  * so on.
@@ -609,44 +615,44 @@ void StrTree::insertRightNaive(StrNode<TwoKeysIntStr>* target,
  * @param target - The node to update its parameters
  */
 
-void StrTree::updateNodeParameters(StrNode<TwoKeysIntStr>* target) {
-    // Check that the target is not empty
-    if (target == nullptr) return;
+// void StrTree::updateNodeParameters(StrNode<TwoKeysIntStr>* target) {
+//     // Check that the target is not empty
+//     if (target == nullptr) return;
 
-    int targetWeight = 1;
+//     int targetWeight = 1;
 
-    int targetStrength = target->key.key1;
+//     int targetStrength = target->key.key1;
 
-    // Update relevant parameters
-    if (target->leftNode != nullptr) {
-        target->heightLeft = target->leftNode->height;
-        targetWeight += target->leftNode->weight;
-        if (target->maxRank < target->leftNode->maxRank) {
-            target->maxRank = target->leftNode->maxRank;
-        }
-    } else {
-        target->heightLeft = -1;
-    }
+//     // Update relevant parameters
+//     if (target->leftNode != nullptr) {
+//         target->heightLeft = target->leftNode->height;
+//         targetWeight += target->leftNode->weight;
+//         if (target->maxRank < target->leftNode->maxRank) {
+//             target->maxRank = target->leftNode->maxRank;
+//         }
+//     } else {
+//         target->heightLeft = -1;
+//     }
 
-    if (target->rightNode != nullptr) {
-        target->heightRight = target->rightNode->height;
-        targetWeight += target->rightNode->weight;
-        if (target->maxRank < target->rightNode->maxRank) {
-            target->maxRank = target->rightNode->maxRank;
-        }
-    } else {
-        target->heightRight = -1;
-    }
+//     if (target->rightNode != nullptr) {
+//         target->heightRight = target->rightNode->height;
+//         targetWeight += target->rightNode->weight;
+//         if (target->maxRank < target->rightNode->maxRank) {
+//             target->maxRank = target->rightNode->maxRank;
+//         }
+//     } else {
+//         target->heightRight = -1;
+//     }
 
-    if (target->heightLeft > target->heightRight) {
-        target->height = target->heightLeft + 1;
-    } else {
-        target->height = target->heightRight + 1;
-    }
+//     if (target->heightLeft > target->heightRight) {
+//         target->height = target->heightLeft + 1;
+//     } else {
+//         target->height = target->heightRight + 1;
+//     }
 
-    target->balanceFactor = target->heightLeft - target->heightRight;
-    target->weight = targetWeight;
-}
+//     target->balanceFactor = target->heightLeft - target->heightRight;
+//     target->weight = targetWeight;
+// }
 
 void StrTree::updateNodeParameters(StrNode<TwoKeysIntStr>* target,
                                    int sumExtras) {
@@ -696,23 +702,28 @@ void StrTree::updateNodeParameters(StrNode<TwoKeysIntStr>* target,
  * @param node - The node to roll from
  */
 
-void StrTree::rollRight(StrNode<TwoKeysIntStr>* node) {
+void StrTree::rollRight(StrNode<TwoKeysIntStr>* node, int sumExtras) {
     StrNode<TwoKeysIntStr>* temp = node->leftNode;
     StrNode<TwoKeysIntStr>* tempRight = temp->rightNode;
 
-    // Change the extra of temp to be e_b - e_a
-    node->extra = node->extra - temp->extra;
+    int tmpExtra = temp->extra;
+    temp->extra += node->extra;
+    node->extra = -tmpExtra;
 
     node->leftNode = tempRight;
-
-    updateNodeParameters(node);
     if (tempRight != nullptr) {
+        tempRight->extra += tmpExtra;
+        sumExtras += tempRight->extra;
         tempRight->parentNode = node;
         tempRight->isLeftChild = true;
         tempRight->isRightChild = false;
+        updateNodeParameters(tempRight, sumExtras);
+        sumExtras -= tempRight->extra;
     }
+    updateNodeParameters(node, sumExtras);
     temp->rightNode = node;
-    updateNodeParameters(temp);
+    sumExtras -= node->extra;
+    updateNodeParameters(temp, sumExtras);
 
     StrNode<TwoKeysIntStr>* parent = node->parentNode;
     // Update nodes parent that his child is now temp and not node
@@ -745,23 +756,29 @@ void StrTree::rollRight(StrNode<TwoKeysIntStr>* node) {
  * @param node - The node to roll from
  */
 
-void StrTree::rollLeft(StrNode<TwoKeysIntStr>* node) {
+void StrTree::rollLeft(StrNode<TwoKeysIntStr>* node, int sumExtras) {
     StrNode<TwoKeysIntStr>* temp = node->rightNode;
     StrNode<TwoKeysIntStr>* tempLeft = temp->leftNode;
 
-    // Change the extra of temp to be e_b - e_a
-    node->extra = node->extra + temp->extra;
+    int tmpExtra = temp->extra;
+    temp->extra += node->extra;
+    node->extra = -tmpExtra;
 
     node->rightNode = tempLeft;
 
-    updateNodeParameters(node);
     if (tempLeft != nullptr) {
+        tempLeft->extra += tmpExtra;
+        sumExtras += tempLeft->extra;
         tempLeft->parentNode = node;
         tempLeft->isLeftChild = false;
         tempLeft->isRightChild = true;
+        updateNodeParameters(tempLeft, sumExtras);
+        sumExtras -= tempLeft->extra;
     }
+    updateNodeParameters(node, sumExtras);
     temp->leftNode = node;
-    updateNodeParameters(temp);
+    sumExtras -= node->extra;
+    updateNodeParameters(temp, sumExtras);
 
     StrNode<TwoKeysIntStr>* parent = node->parentNode;
     // Update nodes parent that his child is now temp and not node
@@ -795,17 +812,19 @@ void StrTree::rollLeft(StrNode<TwoKeysIntStr>* node) {
  * @param node - The node to roll from
  */
 
-bool StrTree::rollNode(StrNode<TwoKeysIntStr>* node) {
+bool StrTree::rollNode(StrNode<TwoKeysIntStr>* node, int sumExtras) {
     StrNode<TwoKeysIntStr>* tempNode;
     if (node->balanceFactor == 2) {
         tempNode = node->leftNode;
         if (tempNode->balanceFactor >= 0) {
             // Roll LL
-            rollRight(node);
+            rollRight(node, sumExtras);
         } else if (tempNode->balanceFactor == -1) {
             // Roll LR
-            rollLeft(tempNode);
-            rollRight(node);
+            sumExtras += tempNode->extra;
+            rollLeft(tempNode, sumExtras);
+            sumExtras -= tempNode->extra;
+            rollRight(node, sumExtras);
         } else {
             // Throw an exception
             return false;
@@ -814,11 +833,13 @@ bool StrTree::rollNode(StrNode<TwoKeysIntStr>* node) {
         tempNode = node->rightNode;
         if (tempNode->balanceFactor <= 0) {
             // Roll RR
-            rollLeft(node);
+            rollLeft(node, sumExtras);
         } else if (tempNode->balanceFactor == 1) {
             // Roll RL
-            rollRight(tempNode);
-            rollLeft(node);
+            sumExtras += tempNode->extra;
+            rollRight(tempNode, sumExtras);
+            sumExtras -= tempNode->extra;
+            rollLeft(node, sumExtras);
         } else {
             // Throw an exception
             return false;
@@ -982,7 +1003,7 @@ StrNode<TwoKeysIntStr>* StrTree::createEmptyTreeAux(
     node->leftNode = createEmptyTreeAux(node, height - 1, true, false);
     node->rightNode = createEmptyTreeAux(node, height - 1, false, true);
     node->parentNode = parentNode;
-    updateNodeParameters(node);
+    updateNodeParameters(node, 0);
     return node;
 }
 
@@ -1001,10 +1022,10 @@ void StrTree::adjustTreeSize(StrNode<TwoKeysIntStr>* node, int* toDelete) {
     if (node->rightNode == nullptr && node->leftNode == nullptr) {
         if (node->parentNode != nullptr && node->isRightChild == true) {
             node->parentNode->rightNode = nullptr;
-            updateNodeParameters(node->parentNode);
+            updateNodeParameters(node->parentNode, 0);
         } else if (node->parentNode != nullptr && node->isLeftChild == true) {
             node->parentNode->leftNode = nullptr;
-            updateNodeParameters(node->parentNode);
+            updateNodeParameters(node->parentNode, 0);
         }
         destroy(node);
         (*toDelete)--;
@@ -1066,15 +1087,137 @@ void StrTree::Add(int startIndex, int endIndex, int value) {
         return;
     }
     Add(endIndex, value);
+    // updateEndIndex
+
+    int sumExtras = 0;
+    StrNode<TwoKeysIntStr>* finalNode = getNodeByRank(endIndex, &sumExtras);
+    updateTournamentRound(finalNode, sumExtras);
     Add(startIndex - 1, -value);
+
+    // updateStartIndex
+    sumExtras = 0;
+    StrNode<TwoKeysIntStr>* startNode = getNodeByRank(startIndex, &sumExtras);
+    updateTournamentRound(startNode, sumExtras);
 }
 
-int StrTree::getWins(int teamId) {
-    // TODO: implement this function
+TwoKeysIntStr StrTree::closestLowPowerAbove(int lowPower) {
+    // Check if the tree is empty
+    if (root == nullptr) {
+        return TwoKeysIntStr();
+    };
+
+    StrNode<TwoKeysIntStr>* temp = root;
+    StrNode<TwoKeysIntStr>* lastGreater = nullptr;
+    while (temp != nullptr) {
+        if (lowPower == temp->key.key1) {
+            if (temp->leftNode != nullptr &&
+                temp->leftNode->key.key1 == lowPower) {
+                temp = temp->leftNode;
+            } else {
+                return temp->key;
+            }
+        }
+        // Traverse the correct direction
+        else if (lowPower < temp->key.key1) {
+            lastGreater = temp;
+            temp = temp->leftNode;
+        } else {
+            temp = temp->rightNode;
+        }
+    }
+    if (lastGreater != nullptr) {
+        return lastGreater->key;
+    }
+    return TwoKeysIntStr();
+}
+
+TwoKeysIntStr StrTree::closestHighPowerBelow(int highPower) {
+    // Check if the tree is empty
+    if (root == nullptr) {
+        return TwoKeysIntStr(0, 0);
+    };
+
+    StrNode<TwoKeysIntStr>* temp = root;
+    StrNode<TwoKeysIntStr>* lastLess = nullptr;
+    while (temp != nullptr) {
+        if (highPower == temp->key.key1) {
+            if (temp->rightNode != nullptr &&
+                temp->rightNode->key.key1 == highPower) {
+                temp = temp->rightNode;
+            } else {
+                return temp->key;
+            }
+        }
+        // Traverse the correct direction
+        else if (highPower < temp->key.key1) {
+            temp = temp->leftNode;
+        } else {
+            lastLess = temp;
+            temp = temp->rightNode;
+        }
+    }
+    if (lastLess != nullptr) {
+        return lastLess->key;
+    }
+    return TwoKeysIntStr(0, 0);
+}
+
+void StrTree::updateTournamentRound(StrNode<TwoKeysIntStr>* node,
+                                    int sumExtras) {
+    StrNode<TwoKeysIntStr>* tmpNode = node;
+    while (tmpNode != nullptr) {
+        int finalMaxRank = tmpNode->data + tmpNode->medals + sumExtras;
+        // Compare Left
+        if (tmpNode->leftNode != nullptr) {
+            int leftMaxRank = tmpNode->leftNode->maxRank + sumExtras;
+            if (tmpNode == node) {
+                leftMaxRank += tmpNode->leftNode->extra;
+            }
+            if (leftMaxRank > finalMaxRank) {
+                finalMaxRank = leftMaxRank;
+            }
+        }
+        // Compare Right
+        if (tmpNode->rightNode != nullptr) {
+            int rightMaxRank = tmpNode->rightNode->maxRank + sumExtras;
+            if (tmpNode == node) {
+                rightMaxRank += tmpNode->rightNode->extra;
+            }
+            if (rightMaxRank > finalMaxRank) {
+                finalMaxRank = rightMaxRank;
+            }
+        }
+        tmpNode->maxRank = finalMaxRank;
+        sumExtras -= tmpNode->extra;
+        tmpNode = tmpNode->parentNode;
+    }
+}
+
+int StrTree::getWins(TwoKeysIntStr teamKey) {
+    int sumExtras = 0;
+    StrNode<TwoKeysIntStr>* temp = root;
+    StrNode<TwoKeysIntStr>* parent;
+    while (temp != nullptr) {
+        parent = temp;
+        sumExtras += temp->extra;
+        // Return the wins
+        if (teamKey == temp->key) {
+            return sumExtras + temp->medals;
+        }
+        // Traverse the correct direction
+        else if (teamKey < temp->key) {
+            temp = temp->leftNode;
+        } else {
+            temp = temp->rightNode;
+        }
+    }
+    // Should not reach here
     return 0;
 }
 
 int StrTree::getMaxRank() {
-    // TODO: implement this function
-    return 0;
+    if (isTreeEmpty()) {
+        return -1;
+    }
+    return root->maxRank;
 }
