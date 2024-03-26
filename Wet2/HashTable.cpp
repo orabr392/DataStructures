@@ -60,22 +60,30 @@ void HashTable::rehash(int newSize) {
 }
 
 bool HashTable::teamExists(int teamId) {
-    for (int i = 0; i < arrSize; i++) {
-        if (arr[i].nodeExists(teamId)) {
-            return true;
-        }
+    int index = hashKey(teamId,arrSize);
+    if(arr[index].nodeExists(teamId)){
+        return true;
     }
+//    for (int i = 0; i < arrSize; i++) {
+//        if (arr[i].nodeExists(teamId)) {
+//            return true;
+//        }
+//    }
     return false;
 }
 
 Team* HashTable::getTeam(int teamId) {
-    if (teamExists(teamId)) {
-        for (int i = 0; i < arrSize; i++) {
-            if (arr[i].nodeExists(teamId)) {
-                return arr[i].search(teamId)->data;
-            }
-        }
+    int index = hashKey(teamId, arrSize);
+    if(arr[index].nodeExists(teamId)){
+        return arr[index].search(teamId)->data;
     }
+//    if (teamExists(teamId)) {
+//        for (int i = 0; i < arrSize; i++) {
+//            if (arr[i].nodeExists(teamId)) {
+//                return arr[i].search(teamId)->data;
+//            }
+//        }
+//    }
     return nullptr;
 }
 
