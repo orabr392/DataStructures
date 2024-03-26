@@ -13,6 +13,7 @@ class Team {
     int playersCounter;
     int teamStr;
     int nextPlayerId;
+    int medals;
     Stack<TwoKeysInt> playersStack;
     AVLTree<TwoKeysInt, int> playersTree;
 
@@ -36,6 +37,8 @@ class Team {
     void removeNewestPlayer();
     bool isEmpty();
     void purchaseTeam(Team* otherTeam);
+    void setMedals(int medals);
+    int getMedals();
 };
 
 #endif

@@ -7,6 +7,7 @@ Team::Team() {
     this->teamStr = 0;
     this->playersCounter = 0;
     this->nextPlayerId = 1;
+    this->medals = 0;
 }
 
 Team::Team(int teamId) {
@@ -14,6 +15,7 @@ Team::Team(int teamId) {
     this->teamStr = 0;
     this->playersCounter = 0;
     this->nextPlayerId = 1;
+    this->medals = 0;
 }
 
 int Team::getTeamStr() { return this->teamStr; }
@@ -164,3 +166,6 @@ AVLNode<TwoKeysInt, int>* Team::merge(AVLNode<TwoKeysInt, int>* arrTree1,
     }
     return newArr;
 }
+
+void Team::setMedals(int medals) { this->medals = medals; }
+int Team::getMedals() { return this->medals; }

@@ -23,6 +23,7 @@ class olympics_t {
    private:
     HashTable hashTable;
     StrTree strTree;
+    int teamsCounter;
 
    public:
     // <DO-NOT-MODIFY> {

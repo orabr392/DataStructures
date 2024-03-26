@@ -1,6 +1,6 @@
 #include "olympics24a2.h"
 
-olympics_t::olympics_t() {}
+olympics_t::olympics_t() { this->teamsCounter = 0; }
 
 olympics_t::~olympics_t() {}
 
@@ -12,6 +12,7 @@ StatusType olympics_t::add_team(int teamId) {
         return StatusType::FAILURE;
     }
     this->hashTable.insert(teamId);
+    this->teamsCounter += 1;
     return StatusType::SUCCESS;
 }
 
@@ -22,8 +23,11 @@ StatusType olympics_t::remove_team(int teamId) {
     if (!this->hashTable.teamExists(teamId)) {
         return StatusType::FAILURE;
     }
+    Team* team = this->hashTable.getTeam(teamId);
+    TwoKeysIntStr teamKey(team->getTeamStr(), teamId);
+    strTree.remove(teamKey);
     this->hashTable.remove(teamId);
-    // TODO: Need to remove from strengths tree
+    this->teamsCounter -= 1;
     return StatusType::SUCCESS;
 }
 
@@ -35,8 +39,15 @@ StatusType olympics_t::add_player(int teamId, int playerStrength) {
         return StatusType::FAILURE;
     }
     Team* team = this->hashTable.getTeam(teamId);
+    TwoKeysIntStr teamKey(team->getTeamStr(), teamId);
+    if (!team->isEmpty()) {
+        int medals = strTree.getWins(teamKey);
+        team->setMedals(medals);
+        strTree.remove(teamKey);
+    }
     team->insertPlayer(playerStrength);
-    // TODO: Need to remove and insert the team into the strengths tree
+    teamKey.key1 = team->getTeamStr();
+    strTree.insert(teamKey, team->getTeamStr(), team->getMedals());
     return StatusType::SUCCESS;
 }
 
@@ -49,8 +60,15 @@ StatusType olympics_t::remove_newest_player(int teamId) {
         return StatusType::FAILURE;
     }
     Team* team = this->hashTable.getTeam(teamId);
+    TwoKeysIntStr teamKey(team->getTeamStr(), teamId);
+    int medals = strTree.getWins(teamKey);
+    team->setMedals(medals);
+    strTree.remove(teamKey);
     team->removeNewestPlayer();
-    // TODO: Need to remove and insert the team into the strengths tree
+    if (!team->isEmpty()) {
+        teamKey.key1 = team->getTeamStr();
+        strTree.insert(teamKey, team->getTeamStr(), team->getMedals());
+    }
     return StatusType::SUCCESS;
 }
 
@@ -68,17 +86,26 @@ output_t<int> olympics_t::play_match(int teamId1, int teamId2) {
 
     Team* team1 = this->hashTable.getTeam(teamId1);
     Team* team2 = this->hashTable.getTeam(teamId2);
+    TwoKeysIntStr team1Key(team1->getTeamStr(), teamId1);
+    TwoKeysIntStr team2Key(team2->getTeamStr(), teamId2);
+    int indexTeam1 = strTree.findIndex(team1Key);
+    int indexTeam2 = strTree.findIndex(team2Key);
+
     if (team1->getTeamStr() > team2->getTeamStr()) {
+        strTree.Add(indexTeam1, indexTeam1, 1);
         return {teamId1};
     } else if (team2->getTeamStr() > team1->getTeamStr()) {
+        strTree.Add(indexTeam2, indexTeam2, 1);
         return {teamId2};
     }
 
     // Both teams have the same strength, return the team with the lower ID
     else {
         if (teamId1 < teamId2) {
+            strTree.Add(indexTeam1, indexTeam1, 1);
             return {teamId1};
         } else {
+            strTree.Add(indexTeam2, indexTeam2, 1);
             return {teamId2};
         }
     }
@@ -90,12 +117,18 @@ output_t<int> olympics_t::num_wins_for_team(int teamId) {
     } else if (!this->hashTable.teamExists(teamId)) {
         return StatusType::FAILURE;
     }
-    int wins = this->strTree.getWins(teamId);
+    Team* team = this->hashTable.getTeam(teamId);
+    TwoKeysIntStr teamKey(team->getTeamStr(), teamId);
+    int wins = this->strTree.getWins(teamKey);
     return {wins};
 }
 
 output_t<int> olympics_t::get_highest_ranked_team() {
-    return {this->strTree.getMaxRank()};
+    int treeMaxRank = strTree.getMaxRank();
+    if (treeMaxRank == -1 && this->teamsCounter > 0) {
+        return 0;
+    }
+    return {treeMaxRank};
 }
 
 StatusType olympics_t::unite_teams(int teamId1, int teamId2) {
@@ -107,15 +140,55 @@ StatusType olympics_t::unite_teams(int teamId1, int teamId2) {
     }
     Team* team1 = this->hashTable.getTeam(teamId1);
     Team* team2 = this->hashTable.getTeam(teamId2);
+    TwoKeysIntStr team1Key(team1->getTeamStr(), teamId1);
+    TwoKeysIntStr team2Key(team2->getTeamStr(), teamId2);
+    if (!team1->isEmpty()) {
+        int medals = strTree.getWins(team1Key);
+        team1->setMedals(medals);
+        strTree.remove(team1Key);
+    }
+    strTree.remove(team2Key);
     team1->purchaseTeam(team2);
     this->hashTable.remove(teamId2);
-    // TODO: Remove team2 from strenghts tree and reinsert team1 to strengths
-    // tree
+    this->teamsCounter -= 1;
+    if (!team1->isEmpty()) {
+        team1Key.key1 = team1->getTeamStr();
+        strTree.insert(team1Key, team1->getTeamStr(), team1->getMedals());
+    }
     return StatusType::SUCCESS;
 }
 
 output_t<int> olympics_t::play_tournament(int lowPower, int highPower) {
-    // TODO: Your code goes here
-    static int i = 0;
-    return (i++ == 0) ? 11 : 2;
+    if (lowPower <= 0 || highPower <= 0 || highPower <= lowPower) {
+        return {StatusType::INVALID_INPUT};
+    }
+    // Find smallest team with str >= lowPower
+    // Find largest team with str <= highPower
+    TwoKeysIntStr keyLow = strTree.closestLowPowerAbove(lowPower);
+    TwoKeysIntStr keyHigh = strTree.closestHighPowerBelow(highPower);
+    // Find their index and calculate how many teams are between them
+    int indexLow = strTree.findIndex(keyLow);
+    int indexHigh = strTree.findIndex(keyHigh);
+    int numOfTeams = (indexHigh - indexLow) + 1;
+    if (strTree.isTreeEmpty() || indexLow == 0 || indexHigh == 0) {
+        return {StatusType::FAILURE};
+    }
+    // Determine if numOfTeams is a power of two
+    int numOfTeamsTemp = numOfTeams;
+    while (numOfTeamsTemp % 2 == 0 && numOfTeamsTemp > 0) {
+        numOfTeamsTemp /= 2;
+    }
+    if (numOfTeamsTemp != 1) {
+        return {StatusType::FAILURE};
+    }
+
+    while (numOfTeams > 1) {
+        // Add between indexHigh and (indexHigh - indexLow + 1)/2 + indexLow
+
+        indexLow = (indexHigh - indexLow + 1) / 2 + indexLow;
+        strTree.Add(indexLow, indexHigh, 1);
+        numOfTeams /= 2;
+    }
+
+    return {keyHigh.key2};
 }

@@ -1,5 +1,5 @@
-#ifndef TWOKEYSINT_H_
-#define TWOKEYSINT_H_
+#ifndef TWOKEYSINTSTR_H_
+#define TWOKEYSINTSTR_H_
 
 #include <iostream>
 
