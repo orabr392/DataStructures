@@ -276,6 +276,7 @@ bool StrTree::insert(TwoKeysIntStr key, int data, int medals) {
     treeSize++;
 
     // Search for the newly inserted node
+    sumExtras = 0;
     target = search(key, &sumExtras);
     if (key != target->key) {
         return false;
@@ -285,7 +286,6 @@ bool StrTree::insert(TwoKeysIntStr key, int data, int medals) {
     while (target != nullptr) {
         updateNodeParameters(target, sumExtras);
         sumExtras -= target->extra;
-
         target = target->parentNode;
     }
     return true;
@@ -308,7 +308,7 @@ bool StrTree::remove(TwoKeysIntStr key) {
     else if (toBeRemoved->key != key) {
         return false;
     }
-
+    StrNode<TwoKeysIntStr>* upwardUpdaterNode = nullptr;
     // toBeRemoved has 2 children
     if (toBeRemoved->heightLeft >= 0 && toBeRemoved->heightRight >= 0) {
         int sumExtrasV1 = sumExtras;
@@ -319,14 +319,20 @@ bool StrTree::remove(TwoKeysIntStr key) {
     }
 
     StrNode<TwoKeysIntStr>* parent = toBeRemoved->parentNode;
+    upwardUpdaterNode = parent;
     // If toBeRemoved is a leaf
     if (toBeRemoved->height == 0) {
-        if (!removeLeaf(toBeRemoved, &sumExtras)) return false;
+        if (!removeLeaf(toBeRemoved, &sumExtras)) {
+            return false;
+        }
     }
     // toBeRemoved has a single child
     else if (toBeRemoved->height > 0 && (toBeRemoved->heightLeft == -1 ||
                                          toBeRemoved->heightRight == -1)) {
-        if (!removeSingleChild(toBeRemoved, &sumExtras)) return false;
+        upwardUpdaterNode = removeSingleChild(toBeRemoved, &sumExtras);
+        if (upwardUpdaterNode == nullptr) {
+            return false;
+        }
     }
 
     StrNode<TwoKeysIntStr>* tempNode = parent;
@@ -342,6 +348,20 @@ bool StrTree::remove(TwoKeysIntStr key) {
     treeSize--;
 
     // Maybe need to update the whole route again?
+    // Update from parent
+    sumExtras = 0;
+    // if (upwardUpdaterNode != nullptr) {
+    //     search(upwardUpdaterNode->key, &sumExtras);
+    //     updateTournamentRound(upwardUpdaterNode, sumExtras);
+    // }
+    if (upwardUpdaterNode != nullptr) {
+        search(upwardUpdaterNode->key, &sumExtras);
+        while (upwardUpdaterNode != nullptr) {
+            updateNodeParameters(upwardUpdaterNode, sumExtras);
+            sumExtras -= upwardUpdaterNode->extra;
+            upwardUpdaterNode = upwardUpdaterNode->parentNode;
+        }
+    }
     return true;
 }
 
@@ -392,13 +412,15 @@ bool StrTree::removeLeaf(StrNode<TwoKeysIntStr>* target, int* sumExtras) {
  *  false - Did not manage to remove the node, perhaps it did not exist
  */
 
-bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target,
-                                int* sumExtras) {
+StrNode<TwoKeysIntStr>* StrTree::removeSingleChild(
+    StrNode<TwoKeysIntStr>* target, int* sumExtras) {
     StrNode<TwoKeysIntStr>* parent = target->parentNode;
+    StrNode<TwoKeysIntStr>* retNode = nullptr;
     *sumExtras -= target->extra;
     int extra = target->extra;
     // target has a single child on the right
     if (target->heightLeft == -1 && target->heightRight >= 0) {
+        retNode = target->rightNode;
         target->rightNode->extra += extra;
         target->rightNode->maxRank = target->maxRank;
         // target is also the root
@@ -426,14 +448,15 @@ bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target,
 
                 destroy(target);
             } else {
-                // Throw an exception
-                return false;
+                // Trow an exception
+                return nullptr;
             }
         }
     }
 
     // target has a single child on the left
     else if (target->heightLeft >= 0 && target->heightRight == -1) {
+        retNode = target->leftNode;
         target->leftNode->extra += extra;
         target->leftNode->maxRank = target->maxRank;
         // target is also the root
@@ -461,11 +484,11 @@ bool StrTree::removeSingleChild(StrNode<TwoKeysIntStr>* target,
                 destroy(target);
             } else {
                 // Throw an exception
-                return false;
+                return nullptr;
             }
         }
     }
-    return true;
+    return retNode;
 }
 
 /*
@@ -483,9 +506,7 @@ StrNode<TwoKeysIntStr>* StrTree::findNextNode(StrNode<TwoKeysIntStr>* node,
     *sumExtras += node->extra;
     while (node->leftNode != nullptr) {
         node = node->leftNode;
-        if (node->leftNode != nullptr) {
-            *sumExtras += node->extra;
-        }
+        *sumExtras += node->extra;
     }
     return node;
 }
@@ -503,7 +524,6 @@ void StrTree::swapTwoNodes(StrNode<TwoKeysIntStr>* v1,
     StrNode<TwoKeysIntStr>* leftNodeV1 = v1->leftNode;
     StrNode<TwoKeysIntStr>* rightNodeV1 = v1->rightNode;
     StrNode<TwoKeysIntStr>* parentNodeV1 = v1->parentNode;
-
     if (v1->rightNode == v2) {
         v1->rightNode = v2->rightNode;
         v1->leftNode = v2->leftNode;
@@ -555,13 +575,16 @@ void StrTree::swapTwoNodes(StrNode<TwoKeysIntStr>* v1,
     if (v2->rightNode != nullptr) {
         v2->rightNode->parentNode = v2;
     }
-    v2->medals += (v2->extra - v1->extra);
+    int actualMedalsV1 = sumExtrasV1 + v1->medals;
+    int actualMedalsV2 = sumExtrasV2 + v2->medals;
+    v1->medals = actualMedalsV1 - sumExtrasV2;
+    v2->medals = actualMedalsV2 - sumExtrasV1;
     int tempExtra = v1->extra;
     v1->extra = v2->extra;
     v2->extra = tempExtra;
     int tempMaxRank = v1->maxRank;
     v1->maxRank = v2->maxRank;
-    v2->maxRank = v1->maxRank;
+    v2->maxRank = tempMaxRank;
     updateNodeParameters(v1, sumExtrasV2);
     updateNodeParameters(v2, sumExtrasV1);
 }
@@ -821,9 +844,10 @@ bool StrTree::rollNode(StrNode<TwoKeysIntStr>* node, int sumExtras) {
             rollRight(node, sumExtras);
         } else if (tempNode->balanceFactor == -1) {
             // Roll LR
-            sumExtras += tempNode->extra;
+            int extraBefore = tempNode->extra;
+            sumExtras += extraBefore;
             rollLeft(tempNode, sumExtras);
-            sumExtras -= tempNode->extra;
+            sumExtras -= extraBefore;
             rollRight(node, sumExtras);
         } else {
             // Throw an exception
@@ -836,9 +860,10 @@ bool StrTree::rollNode(StrNode<TwoKeysIntStr>* node, int sumExtras) {
             rollLeft(node, sumExtras);
         } else if (tempNode->balanceFactor == 1) {
             // Roll RL
-            sumExtras += tempNode->extra;
+            int extraBefore = tempNode->extra;
+            sumExtras += extraBefore;
             rollRight(tempNode, sumExtras);
-            sumExtras -= tempNode->extra;
+            sumExtras -= extraBefore;
             rollLeft(node, sumExtras);
         } else {
             // Throw an exception
@@ -1039,7 +1064,6 @@ void StrTree::setRoot(StrNode<TwoKeysIntStr>* node) { root = node; }
 
 void StrTree::Add(int endIndex, int value) {
     bool turnedRight = false;
-    int sumExtras = 0;
     // Check that the tree contains a node with corresponding rank
     if (endIndex <= 0 || endIndex > treeSize) {
         return;
@@ -1169,9 +1193,10 @@ void StrTree::updateTournamentRound(StrNode<TwoKeysIntStr>* node,
         int finalMaxRank = tmpNode->data + tmpNode->medals + sumExtras;
         // Compare Left
         if (tmpNode->leftNode != nullptr) {
-            int leftMaxRank = tmpNode->leftNode->maxRank + sumExtras;
+            int leftMaxRank = tmpNode->leftNode->maxRank;
             if (tmpNode == node) {
-                leftMaxRank += tmpNode->leftNode->extra;
+                leftMaxRank += tmpNode->leftNode->extra + sumExtras +
+                               tmpNode->leftNode->medals;
             }
             if (leftMaxRank > finalMaxRank) {
                 finalMaxRank = leftMaxRank;
@@ -1179,10 +1204,11 @@ void StrTree::updateTournamentRound(StrNode<TwoKeysIntStr>* node,
         }
         // Compare Right
         if (tmpNode->rightNode != nullptr) {
-            int rightMaxRank = tmpNode->rightNode->maxRank + sumExtras;
-            if (tmpNode == node) {
-                rightMaxRank += tmpNode->rightNode->extra;
-            }
+            int rightMaxRank = tmpNode->rightNode->maxRank;
+            // if (tmpNode == node) {
+            //     rightMaxRank += tmpNode->rightNode->extra + sumExtras +
+            //                     tmpNode->rightNode->medals;
+            // }
             if (rightMaxRank > finalMaxRank) {
                 finalMaxRank = rightMaxRank;
             }
@@ -1196,9 +1222,7 @@ void StrTree::updateTournamentRound(StrNode<TwoKeysIntStr>* node,
 int StrTree::getWins(TwoKeysIntStr teamKey) {
     int sumExtras = 0;
     StrNode<TwoKeysIntStr>* temp = root;
-    StrNode<TwoKeysIntStr>* parent;
     while (temp != nullptr) {
-        parent = temp;
         sumExtras += temp->extra;
         // Return the wins
         if (teamKey == temp->key) {

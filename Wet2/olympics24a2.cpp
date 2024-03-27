@@ -118,6 +118,9 @@ output_t<int> olympics_t::num_wins_for_team(int teamId) {
         return StatusType::FAILURE;
     }
     Team* team = this->hashTable.getTeam(teamId);
+    if (team->isEmpty()) {
+        return {team->getMedals()};
+    }
     TwoKeysIntStr teamKey(team->getTeamStr(), teamId);
     int wins = this->strTree.getWins(teamKey);
     return {wins};

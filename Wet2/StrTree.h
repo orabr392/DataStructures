@@ -32,7 +32,8 @@ class StrTree {
     bool insert(TwoKeysIntStr key, int data, int medals);
     bool remove(TwoKeysIntStr key);
     bool removeLeaf(StrNode<TwoKeysIntStr>* target, int* sumExtras);
-    bool removeSingleChild(StrNode<TwoKeysIntStr>* target, int* sumExtras);
+    StrNode<TwoKeysIntStr>* removeSingleChild(StrNode<TwoKeysIntStr>* target,
+                                              int* sumExtras);
     StrNode<TwoKeysIntStr>* findNextNode(StrNode<TwoKeysIntStr>* node,
                                          int* sumExtras);
     void swapTwoNodes(StrNode<TwoKeysIntStr>* v1, StrNode<TwoKeysIntStr>* v2,
