@@ -1120,7 +1120,8 @@ void StrTree::Add(int startIndex, int endIndex, int value) {
 
     // updateStartIndex
     sumExtras = 0;
-    StrNode<TwoKeysIntStr>* startNode = getNodeByRank(startIndex, &sumExtras);
+    StrNode<TwoKeysIntStr>* startNode =
+        getNodeByRank(startIndex - 1, &sumExtras);
     updateTournamentRound(startNode, sumExtras);
 }
 

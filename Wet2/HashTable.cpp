@@ -3,7 +3,9 @@
 HashTable::HashTable()
     : arrSize(BASE_SIZE),
       numOfTeams(0),
-      arr(new AVLTree<int, Team*>[BASE_SIZE]) {}
+      arr(new HashTableAVLTree[BASE_SIZE]) {}
+
+HashTable::~HashTable() { delete[] arr; }
 
 int HashTable::hashKey(int key, int mod) const { return key % mod; }
 
@@ -39,18 +41,19 @@ bool HashTable::remove(int teamId) {
     return true;
 }
 
-void HashTable::insertTreeToTable(AVLNode<int, Team*>* root,
-                                  AVLTree<int, Team*>* table, int newSize) {
+void HashTable::insertTreeToTable(HashTableAVLNode* root,
+                                  HashTableAVLTree* table, int newSize) {
     if (root == nullptr) return;
     int indexToInsert = hashKey(root->key, newSize);
     table[indexToInsert].insert(root->key, root->data);
+    root->data = nullptr;
     insertTreeToTable(root->leftNode, table, newSize);
     insertTreeToTable(root->rightNode, table, newSize);
 }
 
 void HashTable::rehash(int newSize) {
-    AVLTree<int, Team*>* newArr = new AVLTree<int, Team*>[newSize];
-    AVLTree<int, Team*>* temp = arr;
+    HashTableAVLTree* newArr = new HashTableAVLTree[newSize];
+    HashTableAVLTree* temp = arr;
     for (int i = 0; i < arrSize; i++) {
         insertTreeToTable(arr[i].root, newArr, newSize);
     }
@@ -60,8 +63,8 @@ void HashTable::rehash(int newSize) {
 }
 
 bool HashTable::teamExists(int teamId) {
-    int index = hashKey(teamId,arrSize);
-    if(arr[index].nodeExists(teamId)){
+    int index = hashKey(teamId, arrSize);
+    if (arr[index].nodeExists(teamId)) {
         return true;
     }
     return false;
@@ -69,7 +72,7 @@ bool HashTable::teamExists(int teamId) {
 
 Team* HashTable::getTeam(int teamId) {
     int index = hashKey(teamId, arrSize);
-    if(arr[index].nodeExists(teamId)){
+    if (arr[index].nodeExists(teamId)) {
         return arr[index].search(teamId)->data;
     }
     return nullptr;
@@ -79,13 +82,13 @@ int HashTable::getArrSize() const { return arrSize; }
 
 int HashTable::getNumOfTeams() const { return numOfTeams; }
 
-AVLTree<int, Team*>* HashTable::getArr() const { return arr; }
+HashTableAVLTree* HashTable::getArr() const { return arr; }
 
 double HashTable::getLoadFactor() const { return loadFactor; }
 
 // Function to print binary tree in 2D
 // It does reverse inorder traversal
-void print2DUtil(AVLNode<int, Team*>* root, int space) {
+void print2DUtil(HashTableAVLNode* root, int space) {
     // Base case
     if (root == NULL) return;
 
@@ -106,7 +109,7 @@ void print2DUtil(AVLNode<int, Team*>* root, int space) {
 }
 
 // Wrapper over print2DUtil()
-void print2D(AVLNode<int, Team*>* root) {
+void print2D(HashTableAVLNode* root) {
     // Pass initial space count as 0
     print2DUtil(root, 0);
 }

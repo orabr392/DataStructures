@@ -105,6 +105,8 @@ void Team::mergeTeamsTrees(AVLTree<TwoKeysInt, int>* otherTree,
     playersTree.setRoot(newTree.getRoot());
     playersTree.setTreeSize(newTreeSize);
     newTree.disconnectRoot();
+
+    delete[] playersArray;
 }
 
 /*

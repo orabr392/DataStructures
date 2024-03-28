@@ -30,12 +30,14 @@ Stack<T>::Stack() {
 
 template <class T>
 Stack<T>::~Stack() {
-    StackNode<T>* tmpNode;
+    StackNode<T>* tmpNode = topNode;
     for (int i = 0; i < this->counter - 1; i++) {
-        tmpNode = topNode->prevNode;
+        tmpNode = tmpNode->prevNode;
         delete tmpNode->nextNode;
     }
-    delete tmpNode;
+    if (tmpNode != nullptr) {
+        delete tmpNode;
+    }
 }
 
 template <class T>

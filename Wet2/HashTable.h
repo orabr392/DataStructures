@@ -4,8 +4,8 @@
 #include <memory>
 #include <stdexcept>
 
-#include "AVLNode.h"
-#include "AVLTree.h"
+#include "HashTableAVLNode.h"
+#include "HashTableAVLTree.h"
 #include "Team.h"
 
 #define BASE_SIZE 10
@@ -15,21 +15,22 @@ class Team;
 class HashTable {
     int arrSize;
     int numOfTeams;
-    AVLTree<int, Team*>* arr;
+    HashTableAVLTree* arr;
     const double loadFactor = 0.5;
     int hashKey(int key, int mod) const;
     void rehash(int newSize);
-    void insertTreeToTable(AVLNode<int, Team*>* root,
-                           AVLTree<int, Team*>* table, int newSize);
+    void insertTreeToTable(HashTableAVLNode* root, HashTableAVLTree* table,
+                           int newSize);
 
    public:
     HashTable();
+    ~HashTable();
     bool teamExists(int teamId);
     bool insert(int teamId);
     bool remove(int teamId);
     int getArrSize() const;
     int getNumOfTeams() const;
-    AVLTree<int, Team*>* getArr() const;
+    HashTableAVLTree* getArr() const;
     Team* getTeam(int teamId);
     double getLoadFactor() const;
     /*
