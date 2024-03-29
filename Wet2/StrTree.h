@@ -63,7 +63,15 @@ class StrTree {
     void Add(int endIndex, int value);
     TwoKeysIntStr closestLowPowerAbove(int lowPower);
     TwoKeysIntStr closestHighPowerBelow(int highPower);
-    void updateTournamentRound(StrNode<TwoKeysIntStr>* node, int sumExtras);
+    void updateTournamentRoundTail(StrNode<TwoKeysIntStr>* node,
+                                   int sumExtras);
+    void updateTournamentRoundHead(StrNode<TwoKeysIntStr>* node,
+                                   StrNode<TwoKeysIntStr>* tailNode,
+                                   int sumExtras);
+    StrNode<TwoKeysIntStr>* getSharedParent(StrNode<TwoKeysIntStr>* v1,
+                                            StrNode<TwoKeysIntStr>* v2);
+    bool isV1ParentOfV2(StrNode<TwoKeysIntStr>* v1,
+                        StrNode<TwoKeysIntStr>* v2);
     int getWins(TwoKeysIntStr teamKey);
     int getMaxRank();
 };

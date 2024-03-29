@@ -1110,19 +1110,19 @@ void StrTree::Add(int startIndex, int endIndex, int value) {
     if (startIndex > endIndex || startIndex <= 0 || endIndex > treeSize) {
         return;
     }
+
     Add(endIndex, value);
     // updateEndIndex
+    int sumExtrasFinal = 0, sumExtrasStart = 0;
+    StrNode<TwoKeysIntStr>* finalNode =
+        getNodeByRank(endIndex, &sumExtrasFinal);
+    updateTournamentRoundTail(finalNode, sumExtrasFinal);
 
-    int sumExtras = 0;
-    StrNode<TwoKeysIntStr>* finalNode = getNodeByRank(endIndex, &sumExtras);
-    updateTournamentRound(finalNode, sumExtras);
     Add(startIndex - 1, -value);
-
     // updateStartIndex
-    sumExtras = 0;
     StrNode<TwoKeysIntStr>* startNode =
-        getNodeByRank(startIndex - 1, &sumExtras);
-    updateTournamentRound(startNode, sumExtras);
+        getNodeByRank(startIndex, &sumExtrasStart);
+    updateTournamentRoundHead(startNode, finalNode, sumExtrasStart);
 }
 
 TwoKeysIntStr StrTree::closestLowPowerAbove(int lowPower) {
@@ -1133,10 +1133,12 @@ TwoKeysIntStr StrTree::closestLowPowerAbove(int lowPower) {
 
     StrNode<TwoKeysIntStr>* temp = root;
     StrNode<TwoKeysIntStr>* lastGreater = nullptr;
+    bool foundExactPower = false;
     while (temp != nullptr) {
         if (lowPower == temp->key.key1) {
-            if (temp->leftNode != nullptr &&
-                temp->leftNode->key.key1 == lowPower) {
+            if (temp->leftNode != nullptr) {
+                lastGreater = temp;
+                foundExactPower = true;
                 temp = temp->leftNode;
             } else {
                 return temp->key;
@@ -1144,7 +1146,9 @@ TwoKeysIntStr StrTree::closestLowPowerAbove(int lowPower) {
         }
         // Traverse the correct direction
         else if (lowPower < temp->key.key1) {
-            lastGreater = temp;
+            if (!foundExactPower) {
+                lastGreater = temp;
+            }
             temp = temp->leftNode;
         } else {
             temp = temp->rightNode;
@@ -1164,10 +1168,12 @@ TwoKeysIntStr StrTree::closestHighPowerBelow(int highPower) {
 
     StrNode<TwoKeysIntStr>* temp = root;
     StrNode<TwoKeysIntStr>* lastLess = nullptr;
+    bool foundExactPower = false;
     while (temp != nullptr) {
         if (highPower == temp->key.key1) {
-            if (temp->rightNode != nullptr &&
-                temp->rightNode->key.key1 == highPower) {
+            if (temp->rightNode != nullptr) {
+                lastLess = temp;
+                foundExactPower = true;
                 temp = temp->rightNode;
             } else {
                 return temp->key;
@@ -1177,7 +1183,9 @@ TwoKeysIntStr StrTree::closestHighPowerBelow(int highPower) {
         else if (highPower < temp->key.key1) {
             temp = temp->leftNode;
         } else {
-            lastLess = temp;
+            if (!foundExactPower) {
+                lastLess = temp;
+            }
             temp = temp->rightNode;
         }
     }
@@ -1187,18 +1195,19 @@ TwoKeysIntStr StrTree::closestHighPowerBelow(int highPower) {
     return TwoKeysIntStr(0, 0);
 }
 
-void StrTree::updateTournamentRound(StrNode<TwoKeysIntStr>* node,
-                                    int sumExtras) {
+void StrTree::updateTournamentRoundTail(StrNode<TwoKeysIntStr>* node,
+                                        int sumExtras) {
     StrNode<TwoKeysIntStr>* tmpNode = node;
+    bool prevWasRightChild = true;
     while (tmpNode != nullptr) {
         int finalMaxRank = tmpNode->data + tmpNode->medals + sumExtras;
         // Compare Left
         if (tmpNode->leftNode != nullptr) {
-            int leftMaxRank = tmpNode->leftNode->maxRank;
-            if (tmpNode == node) {
-                leftMaxRank += tmpNode->leftNode->extra + sumExtras +
-                               tmpNode->leftNode->medals;
+            if (prevWasRightChild == true) {
+                tmpNode->leftNode->maxRank++;
             }
+            int leftMaxRank = tmpNode->leftNode->maxRank;
+
             if (leftMaxRank > finalMaxRank) {
                 finalMaxRank = leftMaxRank;
             }
@@ -1206,18 +1215,178 @@ void StrTree::updateTournamentRound(StrNode<TwoKeysIntStr>* node,
         // Compare Right
         if (tmpNode->rightNode != nullptr) {
             int rightMaxRank = tmpNode->rightNode->maxRank;
-            // if (tmpNode == node) {
-            //     rightMaxRank += tmpNode->rightNode->extra + sumExtras +
-            //                     tmpNode->rightNode->medals;
-            // }
             if (rightMaxRank > finalMaxRank) {
                 finalMaxRank = rightMaxRank;
             }
         }
         tmpNode->maxRank = finalMaxRank;
         sumExtras -= tmpNode->extra;
+        prevWasRightChild = tmpNode->isRightChild;
         tmpNode = tmpNode->parentNode;
     }
+}
+
+void StrTree::updateTournamentRoundHead(StrNode<TwoKeysIntStr>* node,
+                                        StrNode<TwoKeysIntStr>* tailNode,
+                                        int sumExtras) {
+    StrNode<TwoKeysIntStr>* tmpNode = node;
+    if (isV1ParentOfV2(tailNode, node)) {
+        bool seenTailNode = false;
+        bool prevWasRightChild = true;
+        while (tmpNode != nullptr) {
+            int finalMaxRank = tmpNode->data + tmpNode->medals + sumExtras;
+            if (tmpNode->leftNode != nullptr) {
+                if (seenTailNode == true && prevWasRightChild == true) {
+                    tmpNode->leftNode->maxRank--;
+                }
+                int leftMaxRank = tmpNode->leftNode->maxRank;
+                if (leftMaxRank > finalMaxRank) {
+                    finalMaxRank = leftMaxRank;
+                }
+            }
+            if (tmpNode == tailNode) {
+                seenTailNode = true;
+            }
+            if (tmpNode->rightNode != nullptr) {
+                if (seenTailNode == false) {
+                    tmpNode->rightNode->maxRank++;
+                }
+                int rightRightMax = tmpNode->rightNode->maxRank;
+                if (rightRightMax > finalMaxRank) {
+                    finalMaxRank = rightRightMax;
+                }
+            }
+            tmpNode->maxRank = finalMaxRank;
+            sumExtras -= tmpNode->extra;
+            prevWasRightChild = tmpNode->isRightChild;
+            tmpNode = tmpNode->parentNode;
+        }
+        return;
+    }
+    if (isV1ParentOfV2(node, tailNode) == true) {
+        // Check left and right vs their maxes
+        while (tmpNode != nullptr) {
+            int finalMaxRank = tmpNode->data + tmpNode->medals + sumExtras;
+            if (tmpNode->leftNode != nullptr) {
+                tmpNode->leftNode->maxRank--;
+                int leftMaxRank = tmpNode->leftNode->maxRank;
+                if (leftMaxRank > finalMaxRank) {
+                    finalMaxRank = leftMaxRank;
+                }
+            }
+            if (tmpNode->rightNode != nullptr) {
+                int rightRightMax = tmpNode->rightNode->maxRank;
+                if (rightRightMax > finalMaxRank) {
+                    finalMaxRank = rightRightMax;
+                }
+            }
+            tmpNode->maxRank = finalMaxRank;
+            sumExtras -= tmpNode->extra;
+            tmpNode = tmpNode->parentNode;
+        }
+        return;
+    }
+    if (node == tailNode) {
+        // Check left and right vs their maxes
+        bool prevWasRightChild = true;
+        while (tmpNode != nullptr) {
+            int finalMaxRank = tmpNode->data + tmpNode->medals + sumExtras;
+            if (tmpNode->leftNode != nullptr) {
+                if (prevWasRightChild == true) {
+                    tmpNode->leftNode->maxRank--;
+                }
+                int leftMaxRank = tmpNode->leftNode->maxRank;
+                if (leftMaxRank > finalMaxRank) {
+                    finalMaxRank = leftMaxRank;
+                }
+            }
+            if (tmpNode->rightNode != nullptr) {
+                int rightRightMax = tmpNode->rightNode->maxRank;
+                if (rightRightMax > finalMaxRank) {
+                    finalMaxRank = rightRightMax;
+                }
+            }
+            tmpNode->maxRank = finalMaxRank;
+            sumExtras -= tmpNode->extra;
+            prevWasRightChild = tmpNode->isRightChild;
+            tmpNode = tmpNode->parentNode;
+        }
+        return;
+    }
+    bool seenSharedParent = false;
+    bool prevWasLeftChild = true;
+    bool prevWasRightChild = false;
+    StrNode<TwoKeysIntStr>* sharedParent = getSharedParent(node, tailNode);
+    while (tmpNode != nullptr) {
+        int finalMaxRank = tmpNode->data + tmpNode->medals + sumExtras;
+        // Compare Left
+        if (tmpNode->leftNode != nullptr) {
+            if (seenSharedParent == true && prevWasRightChild == true) {
+                tmpNode->leftNode->maxRank--;
+            }
+            int leftRankkMax = tmpNode->leftNode->maxRank;
+            if (leftRankkMax > finalMaxRank) {
+                finalMaxRank = leftRankkMax;
+            }
+        }
+        if (tmpNode == sharedParent) {
+            seenSharedParent = true;
+        }
+        // Compare Right
+        if (tmpNode->rightNode != nullptr) {
+            if (seenSharedParent == false && prevWasLeftChild == true) {
+                tmpNode->rightNode->maxRank++;
+            }
+            int rightMaxRank = tmpNode->rightNode->maxRank;
+            if (rightMaxRank > finalMaxRank) {
+                finalMaxRank = rightMaxRank;
+            }
+        }
+        if (seenSharedParent == true || tmpNode->maxRank < finalMaxRank ||
+            (tmpNode->parentNode != nullptr &&
+             tmpNode->parentNode == sharedParent && tmpNode != node)) {
+            tmpNode->maxRank = finalMaxRank;
+        }
+        sumExtras -= tmpNode->extra;
+        prevWasLeftChild = tmpNode->isLeftChild;
+        prevWasRightChild = tmpNode->isRightChild;
+        tmpNode = tmpNode->parentNode;
+    }
+}
+
+StrNode<TwoKeysIntStr>* StrTree::getSharedParent(StrNode<TwoKeysIntStr>* v1,
+                                                 StrNode<TwoKeysIntStr>* v2) {
+    StrNode<TwoKeysIntStr>* tmpNode = root;
+    while (tmpNode != nullptr) {
+        if (v1->key < v2->key) {
+            if (v1->key < tmpNode->key && v2->key > tmpNode->key) {
+                return tmpNode;
+            }
+        } else {
+            if (v1->key > tmpNode->key && v2->key < tmpNode->key) {
+                return tmpNode;
+            }
+        }
+        // They share same side
+        if (v1->key < tmpNode->key) {
+            tmpNode = tmpNode->leftNode;
+        } else {
+            tmpNode = tmpNode->rightNode;
+        }
+    }
+    return nullptr;
+}
+
+bool StrTree::isV1ParentOfV2(StrNode<TwoKeysIntStr>* v1,
+                             StrNode<TwoKeysIntStr>* v2) {
+    StrNode<TwoKeysIntStr>* tempV2 = v2;
+    while (tempV2 != nullptr) {
+        if (tempV2->parentNode == v1) {
+            return true;
+        }
+        tempV2 = tempV2->parentNode;
+    }
+    return false;
 }
 
 int StrTree::getWins(TwoKeysIntStr teamKey) {
